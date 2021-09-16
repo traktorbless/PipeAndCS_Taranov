@@ -4,14 +4,22 @@
 using namespace std;
 
 struct Pipe {
-    int id;
+    int id = -1;
     int diametr;
     double length;
     bool isInRepair  = false;
 };
 
+bool operator==(const Pipe& lhs,const Pipe& rhs){
+    if (lhs.id == rhs.id){
+        return true;
+    }
+    return false;
+}
+
 Pipe AddPipe() {
     Pipe pipe = {};
+    pipe.id = 0;
     cout << "Enter diametr: ";
     cin >> pipe.diametr;
     cout << "Enter length: ";
@@ -20,6 +28,7 @@ Pipe AddPipe() {
 }
 
 void PrintPipe(const Pipe& pipe) {
+    if (pipe.id != -1) {
     cout << "Pipe " << pipe.id << endl
         <<"Her character: " << endl;
     cout << "Diamter: " << pipe.diametr << endl;
@@ -31,10 +40,16 @@ void PrintPipe(const Pipe& pipe) {
     else {
         cout << "Station does not work" << endl;
     }
+    }
 }
 
 void ChangePipe(Pipe& pipe){
     pipe.isInRepair = !pipe.isInRepair;
+    if (pipe.isInRepair){
+        cout << "Status of the pipe: under repair" << endl;
+    } else {
+        cout << "Status of the pipe: in progress" << endl;
+    }
 }
 
 #endif /* Pipe_h */

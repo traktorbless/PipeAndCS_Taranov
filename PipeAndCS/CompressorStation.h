@@ -9,16 +9,23 @@
 #define CompressorStation_h
 
 struct CompressionStation {
-    int id = 0;
+    int id = -1;
     string name;
     int numberWorkshop;
     int numberWorkshopInAtive;
     double effiency;
 };
 
+bool operator==(const CompressionStation& lhs,const CompressionStation& rhs){
+    if (lhs.id == rhs.id){
+        return true;
+    }
+    return false;
+}
 
 CompressionStation AddCS() {
     CompressionStation station = {};
+    station.id = 0;
     cout << "Enter name station: ";
     cin >> station.name;
     cout << "Enter number of workstaions: ";
@@ -37,15 +44,20 @@ CompressionStation AddCS() {
 }
 
 void PrintCS(const CompressionStation& station) {
+    if (station.id != -1) {
     cout << "Compressor station " << station.id << endl
     << "Her character: " << endl;
     cout << "Name: " << station.name << endl;
     cout << "Number of workstations: " << station.numberWorkshop << endl;
     cout << "Number of workstations in action: " << station.numberWorkshopInAtive << endl;
     cout << "Station effiency: " << station.effiency << endl;
+    }
 }
 
-void ChangeCs(CompressionStation& station,int newNumberWorkstationInAction) {
+void ChangeCs(CompressionStation& station) {
+    cout << "Enter number workstation in active" << endl;
+    int newNumberWorkstationInAction = 0;
+    cin >> newNumberWorkstationInAction;
     if(newNumberWorkstationInAction > station.numberWorkshop){
         cout << "Invalid input" << endl;
     } else {
