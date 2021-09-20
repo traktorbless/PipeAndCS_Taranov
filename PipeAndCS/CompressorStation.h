@@ -16,11 +16,6 @@ struct CompressionStation {
     double effiency;
 };
 
-int ParseStringToInt(string& line) {
-    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    return stoi(line);
-}
-
 double ParseStringToDouble(string& line) {
     line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
     return stod(line);
@@ -32,17 +27,16 @@ CompressionStation AddCS() {
     cout << "Enter name station: ";
     cin >> station.name;
     cout << "Enter number of workstaions: ";
-    cin >> station.numberWorkshop;
+    station.numberWorkshop = CorrectInputForInt();
     cout << "Enter number of workstation in action: ";
-    int countStationAction = 0;
-    cin >> countStationAction;
+    int countStationAction = CorrectInputForInt();
     while(countStationAction > station.numberWorkshop){
         cout << "Invalid input" << endl;
         cin >> countStationAction;
     }
     station.numberWorkshopInAtive = countStationAction;
     cout << "Enter station effiency: ";
-    cin >> station.effiency;
+    station.effiency = CorrectInputForDouble();
     return station;
 }
 

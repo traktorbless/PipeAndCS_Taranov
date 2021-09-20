@@ -11,18 +11,14 @@ struct Pipe {
     bool isInRepair  = false;
 };
 
-int ParseStringToInt(string& line) {
-    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    return stoi(line);
-}
 
 Pipe AddPipe() {
     Pipe pipe = {};
-    pipe.id = 1;
+    pipe.id = 0;
     cout << "Enter diametr: ";
-    cin >> pipe.diametr;
+    pipe.diametr = CorrectInputForInt();
     cout << "Enter length: ";
-    cin >> pipe.length;
+    pipe.length = CorrectInputForInt();
     return pipe;
 }
 

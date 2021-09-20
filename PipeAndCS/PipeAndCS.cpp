@@ -2,7 +2,7 @@
 
 
 #include <iostream>
-#include <iomanip>
+#include "Funtional.h"
 #include "Pipe.h"
 #include "CompressorStation.h"
 
@@ -17,30 +17,22 @@ void ShowAllObject(const CompressionStation& station, const Pipe& pipe){
     }
 }
 
-void PrintMenu(){
-    cout << "1.Add pipe" << endl;
-    cout << "2.Add compressor station" << endl;
-    cout << "3.Show all object" << endl;
-    cout << "4.Change pipe" << endl;
-    cout << "5.Change compressor station" << endl;
-    cout << "6.Save" << endl;
-    cout << "7.Load" << endl;
-    cout << "0.Exit" << endl;
-    cout << "Enter command number: " << endl;
-}
-
 int main()
 {
     const string path = "saves.txt";
     Pipe pipe = {};
     CompressionStation station  = {};
-    int commandNumber = 0;
     PrintMenu();
     bool statusProgram = true;
     for(;statusProgram;){
-        cin >> commandNumber;
+        string command;
+        int commandNumber = -1;
+        cin >> command;
+        if(CorrectInput(command)) {
+            commandNumber = stoi(command);
+        }
         switch (commandNumber) {
-            case 1:
+            case 1:  
             {
                 if (pipe.id == -1){
                     pipe = AddPipe();
@@ -62,7 +54,7 @@ int main()
                     cout << "Enter command number: " << endl;
                     break;
                 }
-                cout << "Pipe added successfully" << endl;
+                cout << "Compressor station added successfully" << endl;
                 cout << "Enter command number: " << endl;
                 break;
             }
