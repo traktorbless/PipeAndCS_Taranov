@@ -1,12 +1,10 @@
-// Добавить сохранение и загрузку из файла
 // Сделать проверку коректности ввода
 
 
 #include <iostream>
+#include <iomanip>
 #include "Pipe.h"
 #include "CompressorStation.h"
-#include <fstream>
-#include <vector>
 
 using namespace std;
 
@@ -33,6 +31,7 @@ void PrintMenu(){
 
 int main()
 {
+    const string path = "saves.txt";
     Pipe pipe = {};
     CompressionStation station  = {};
     int commandNumber = 0;
@@ -95,7 +94,24 @@ int main()
             }
             case 6:
             {
-                cout << "Program execution completed";
+                ofstream output(path, ios::app);
+                ofstream clearFile(path);
+                SavePipe(output, pipe);
+                SaveCS(output, station);
+                cout << "Saved successfully" << endl;
+                break;
+            }
+            case 7:
+            {
+                ifstream input(path);
+                LoadPipe(input, pipe);
+                LoadCS(input, station);
+                cout << "Load successfully" << endl;
+                break;
+            }
+            case 0:
+            {
+                cout << "Program execution completed" << endl;
                 statusProgram = false;
                 break;
             }

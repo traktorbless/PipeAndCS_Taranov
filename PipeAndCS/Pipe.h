@@ -1,5 +1,6 @@
 #ifndef Pipe_h
 #define Pipe_h
+#include <fstream>
 
 using namespace std;
 
@@ -10,16 +11,14 @@ struct Pipe {
     bool isInRepair  = false;
 };
 
-bool operator==(const Pipe& lhs,const Pipe& rhs){
-    if (lhs.id == rhs.id){
-        return true;
-    }
-    return false;
+int ParseStringToInt(string& line) {
+    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
+    return stoi(line);
 }
 
 Pipe AddPipe() {
     Pipe pipe = {};
-    pipe.id = 0;
+    pipe.id = 1;
     cout << "Enter diametr: ";
     cin >> pipe.diametr;
     cout << "Enter length: ";
@@ -52,4 +51,32 @@ void ChangePipe(Pipe& pipe){
     }
 }
 
+void SavePipe(ofstream& output,const Pipe& pipe){
+    if (pipe.id != -1){
+    output << "Pipe" << endl
+    << "id " << pipe.id << endl
+    << "diametr " << pipe.diametr << endl
+    << "length " << pipe.length << endl
+    << "Status repair " << pipe.isInRepair << endl;
+    } else {
+        output << "Pipe do not exists" << endl;
+    }
+}
+
+void LoadPipe(ifstream& input,Pipe& pipe) {
+    string line;
+    getline(input,line);
+    if (line == "Pipe") {
+        getline(input,line);
+        pipe.id = ParseStringToInt(line);
+        getline(input,line);
+        pipe.diametr = ParseStringToInt(line);
+        getline(input,line);
+        pipe.length = ParseStringToInt(line);
+        getline(input,line);
+        pipe.isInRepair = ParseStringToInt(line) == 0 ? false : true;
+    } else {
+        cout << "Pipe do not saved" << endl;
+    }
+}
 #endif /* Pipe_h */
