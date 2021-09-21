@@ -80,16 +80,11 @@ void LoadCS(ifstream& input, CompressionStation& station) {
     string line;
     getline(input,line);
     if (line == "Compressor station"){
-        getline(input,line);
-        station.id = ParseStringToInt(line);
-        getline(input,line);
-        station.name = "test";
-        getline(input,line);
-        station.numberWorkshop = ParseStringToInt(line);
-        getline(input,line);
-        station.numberWorkshopInAtive = ParseStringToInt(line);
-        getline(input,line);
-        station.effiency = ParseStringToDouble(line);
+        ParseStringToValue(input, station.id);
+        ParseStringToValue(input, station.name);
+        ParseStringToValue(input, station.numberWorkshop);
+        ParseStringToValue(input, station.numberWorkshopInAtive);
+        ParseStringToValue(input, station.effiency);
     } else {
         cout << "Compressor station do not saved" << endl;
     }

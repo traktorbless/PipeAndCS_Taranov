@@ -1,5 +1,3 @@
-// Сделать проверку коректности ввода
-
 
 #include <iostream>
 #include "Funtional.h"
@@ -25,12 +23,7 @@ int main()
     PrintMenu();
     bool statusProgram = true;
     for(;statusProgram;){
-        string command;
-        int commandNumber = -1;
-        cin >> command;
-        if(CorrectInput(command)) {
-            commandNumber = stoi(command);
-        }
+        int commandNumber = CorrectInputForInt();
         switch (commandNumber) {
             case 1:  
             {
@@ -98,7 +91,7 @@ int main()
                 ifstream input(path);
                 LoadPipe(input, pipe);
                 LoadCS(input, station);
-                cout << "Load successfully" << endl;
+                cout << "Loading completed" << endl;
                 break;
             }
             case 0:

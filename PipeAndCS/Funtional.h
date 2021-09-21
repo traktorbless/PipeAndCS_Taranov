@@ -8,6 +8,7 @@
 #ifndef Funtional_h
 #define Funtional_h
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -23,9 +24,28 @@ void PrintMenu(){
     cout << "Enter command number: " << endl;
 }
 
-int ParseStringToInt(string& line) {
+void ParseStringToValue(ifstream& input,int& value) {
+    string line;
+    getline(input,line);
     line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    return stoi(line);
+    value = stoi(line);
+}
+
+void ParseStringToValue(ifstream& input,string& value) {
+    getline(input,value);
+}
+
+void ParseStringToValue(ifstream& input,double& value) {
+    string line;
+    getline(input,line);
+    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
+    value = stod(line);
+}
+
+void ParseStringToValue(ifstream& input,bool& value) {
+    int temp = 0;
+    ParseStringToValue(input, temp);
+    value = temp == 0 ? false : true;
 }
 
 bool CorrectInput(string& s) {
