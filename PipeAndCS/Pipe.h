@@ -63,10 +63,10 @@ void LoadPipe(ifstream& input,Pipe& pipe) {
     string line;
     getline(input,line);
     if (line == "Pipe") {
-        ParseStringToValue(input, pipe.id);
-        ParseStringToValue(input, pipe.diametr);
-        ParseStringToValue(input, pipe.length);
-        ParseStringToValue(input, pipe.isInRepair);
+        ParseStringToInt(input, pipe.id);
+        ParseStringToInt(input, pipe.diametr);
+        ParseStringToDouble(input, pipe.length);
+        ParseStringToBool(input, pipe.isInRepair);
     } else {
         cout << "Pipe do not saved" << endl;
     }

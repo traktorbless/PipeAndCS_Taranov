@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "Funtional.h"
 #include "Pipe.h"

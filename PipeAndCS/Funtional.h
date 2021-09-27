@@ -24,31 +24,27 @@ void PrintMenu(){
     cout << "Enter command number: " << endl;
 }
 
-void ParseStringToValue(ifstream& input,int& value) {
+void ParseStringToInt(ifstream& input,int& value) {
     string line;
     getline(input,line);
     line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
     value = stoi(line);
 }
 
-void ParseStringToValue(ifstream& input,string& value) {
-    getline(input,value);
-}
-
-void ParseStringToValue(ifstream& input,double& value) {
+void ParseStringToDouble(ifstream& input,double& value) {
     string line;
     getline(input,line);
     line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
     value = stod(line);
 }
 
-void ParseStringToValue(ifstream& input,bool& value) {
+void ParseStringToBool(ifstream& input,bool& value) {
     int temp = 0;
-    ParseStringToValue(input, temp);
+    ParseStringToInt(input, temp);
     value = temp == 0 ? false : true;
 }
 
-bool CorrectInput(string& s) {
+bool CheckCorrectInput(string& s) {
     if (s[0] == '.') {
         return false;
     }
@@ -67,7 +63,7 @@ bool CorrectInput(string& s) {
 int CorrectInputForInt(){
     string value;
     cin >> value;
-    while(!CorrectInput(value)){
+    while(!CheckCorrectInput(value)){
         cin >> value;
     }
     return stoi(value);
@@ -76,7 +72,7 @@ int CorrectInputForInt(){
 double CorrectInputForDouble(){
     string value;
     cin >> value;
-    while(!CorrectInput(value)){
+    while(!CheckCorrectInput(value)){
         cin >> value;
     }
     return stod(value);

@@ -16,11 +16,6 @@ struct CompressionStation {
     double effiency;
 };
 
-double ParseStringToDouble(string& line) {
-    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    return stod(line);
-}
-
 CompressionStation AddCS() {
     CompressionStation station = {};
     station.id = 0;
@@ -80,11 +75,11 @@ void LoadCS(ifstream& input, CompressionStation& station) {
     string line;
     getline(input,line);
     if (line == "Compressor station"){
-        ParseStringToValue(input, station.id);
-        ParseStringToValue(input, station.name);
-        ParseStringToValue(input, station.numberWorkshop);
-        ParseStringToValue(input, station.numberWorkshopInAtive);
-        ParseStringToValue(input, station.effiency);
+        ParseStringToInt(input, station.id);
+        getline(input,station.name);
+        ParseStringToInt(input, station.numberWorkshop);
+        ParseStringToInt(input, station.numberWorkshopInAtive);
+        ParseStringToDouble(input, station.effiency);
     } else {
         cout << "Compressor station do not saved" << endl;
     }
