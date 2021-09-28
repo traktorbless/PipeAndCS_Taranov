@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -21,16 +22,16 @@ void ParseStringToDouble(ifstream& input,double& value) {
 void ParseStringToBool(ifstream& input,bool& value) {
     int temp = 0;
     ParseStringToInt(input, temp);
-    value = temp == 0 ? false : true;
+    value = temp;
 }
 
-bool CheckCorrectInput(string& s) {
+bool IsCorrectInput(string& s) {
     if (s[0] == '.') {
+        cout << "Invalid input" << endl;
         return false;
     }
-    vector<char> correctNumbers = {'1','2','3','4','5','6','7','8','9','0','.'};
-    for (auto i : s) {
-        if(count(begin(correctNumbers),end(correctNumbers),i) == 1) {
+    for (auto ch : s) {
+        if((ch >= '0' && ch <= '9') || ch == '.') {
             continue;
         } else {
             cout << "Invalid input" << endl;
@@ -43,7 +44,7 @@ bool CheckCorrectInput(string& s) {
 int CorrectInputForInt(){
     string value;
     cin >> value;
-    while(!CheckCorrectInput(value)){
+    while(!IsCorrectInput(value)){
         cin >> value;
     }
     return stoi(value);
@@ -52,7 +53,7 @@ int CorrectInputForInt(){
 double CorrectInputForDouble(){
     string value;
     cin >> value;
-    while(!CheckCorrectInput(value)){
+    while(!IsCorrectInput(value)){
         cin >> value;
     }
     return stod(value);
@@ -72,33 +73,24 @@ Pipe AddPipe() {
     cout << "Enter diametr: ";
     pipe.diametr = CorrectInputForInt();
     cout << "Enter length: ";
-    pipe.length = CorrectInputForInt();
+    pipe.length = CorrectInputForDouble();
     return pipe;
 }
 
 void PrintPipe(const Pipe& pipe) {
     if (pipe.id != -1) {
     cout << "Pipe " << pipe.id << endl
-        <<"Her character: " << endl;
+        <<"Its character: " << endl;
     cout << "Diamter: " << pipe.diametr << endl;
     cout << "Length: " << pipe.length << endl;
     cout << "Repair satus: ";
-    if (!pipe.isInRepair) {
-        cout << "Station is work" << endl;
-    }
-    else {
-        cout << "Station does not work" << endl;
-    }
+    string result = !pipe.isInRepair ? "Pipe works" : "Pipe does not work";
+    cout << result << endl;
     }
 }
 
 void ChangePipe(Pipe& pipe){
     pipe.isInRepair = !pipe.isInRepair;
-    if (pipe.isInRepair){
-        cout << "Status of the pipe: under repair" << endl;
-    } else {
-        cout << "Status of the pipe: in progress" << endl;
-    }
 }
 
 void SavePipe(ofstream& output,const Pipe& pipe){
@@ -122,7 +114,7 @@ void LoadPipe(ifstream& input,Pipe& pipe) {
         ParseStringToDouble(input, pipe.length);
         ParseStringToBool(input, pipe.isInRepair);
     } else {
-        cout << "Pipe do not saved" << endl;
+        cout << "Pipe does not saved" << endl;
     }
 }
 
@@ -138,14 +130,15 @@ CompressionStation AddCS() {
     CompressionStation station = {};
     station.id = 0;
     cout << "Enter name station: ";
-    cin >> station.name;
+    cin.ignore(1);
+    getline(cin,station.name);
     cout << "Enter number of workstaions: ";
     station.numberWorkshop = CorrectInputForInt();
     cout << "Enter number of workstation in action: ";
     int countStationAction = CorrectInputForInt();
     while(countStationAction > station.numberWorkshop){
         cout << "Invalid input" << endl;
-        cin >> countStationAction;
+        countStationAction = CorrectInputForInt();
     }
     station.numberWorkshopInAtive = countStationAction;
     cout << "Enter station effiency: ";
@@ -156,7 +149,7 @@ CompressionStation AddCS() {
 void PrintCS(const CompressionStation& station) {
     if (station.id != -1) {
     cout << "Compressor station " << station.id << endl
-    << "Her character: " << endl;
+    << "Its character: " << endl;
     cout << "Name: " << station.name << endl;
     cout << "Number of workstations: " << station.numberWorkshop << endl;
     cout << "Number of workstations in action: " << station.numberWorkshopInAtive << endl;
@@ -167,7 +160,7 @@ void PrintCS(const CompressionStation& station) {
 void ChangeCs(CompressionStation& station) {
     cout << "Enter number workstation in active" << endl;
     int newNumberWorkstationInAction = 0;
-    cin >> newNumberWorkstationInAction;
+    newNumberWorkstationInAction = CorrectInputForInt();
     if(newNumberWorkstationInAction > station.numberWorkshop){
         cout << "Invalid input" << endl;
     } else {
@@ -183,7 +176,7 @@ void SaveCS(ofstream& output, const CompressionStation& station){
     << "name " << station.name << endl
     << "number workshop " << station.numberWorkshop << endl
     << "number workshop in action " << station.numberWorkshopInAtive << endl
-    << "effiency " << station.effiency;
+    << "effiency " << station.effiency;;
     } else {
         output << "Compressor station do not exists" << endl;
     }
@@ -204,6 +197,7 @@ void LoadCS(ifstream& input, CompressionStation& station) {
 }
 
 void PrintMenu(){
+    cout << endl;
     cout << "1.Add pipe" << endl;
     cout << "2.Add compressor station" << endl;
     cout << "3.Show all object" << endl;
@@ -229,9 +223,9 @@ int main()
     const string path = "saves.txt";
     Pipe pipe = {};
     CompressionStation station  = {};
-    PrintMenu();
-    bool statusProgram = true;
-    for(;statusProgram;){
+    
+    for(;;){
+        PrintMenu();
         int commandNumber = CorrectInputForInt();
         switch (commandNumber) {
             case 1:  
@@ -240,11 +234,9 @@ int main()
                     pipe = AddPipe();
                 } else {
                     cout << "The pipe exists" << endl;
-                    cout << "Enter command number: " << endl;
                     break;
                 }
                 cout << "Pipe added successfully" << endl;
-                cout << "Enter command number: " << endl;
                 break;
             }
             case 2:
@@ -253,17 +245,14 @@ int main()
                     station = AddCS();
                 } else {
                     cout << "The compressor station exists" << endl;
-                    cout << "Enter command number: " << endl;
                     break;
                 }
                 cout << "Compressor station added successfully" << endl;
-                cout << "Enter command number: " << endl;
                 break;
             }
             case 3:
             {
                 ShowAllObject(station, pipe);
-                cout << "Enter command number: " << endl;
                 break;
             }
             case 4:
@@ -273,7 +262,6 @@ int main()
                 } else {
                     cout << "Pipe do not exists" << endl;
                 }
-                cout << "Enter command number: " << endl;
                 break;
             }
             case 5:
@@ -283,15 +271,14 @@ int main()
                 } else {
                     cout << "Compressor station do not exists" << endl;
                 }
-                cout << "Enter command number: " << endl;
                 break;
             }
             case 6:
             {
-                ofstream output(path, ios::app);
-                ofstream clearFile(path);
+                ofstream output(path);
                 SavePipe(output, pipe);
                 SaveCS(output, station);
+                output.close();
                 cout << "Saved successfully" << endl;
                 break;
             }
@@ -306,12 +293,11 @@ int main()
             case 0:
             {
                 cout << "Program execution completed" << endl;
-                statusProgram = false;
+                return 0;
                 break;
             }
             default:
                 cout << "Invalid command" << endl;
-                cout << "Enter command number: " << endl;
         }
     }
 }
