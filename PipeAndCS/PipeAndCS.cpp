@@ -71,7 +71,9 @@ Pipe AddPipe() {
     Pipe pipe = {};
     pipe.id = 0;
     cout << "Enter diametr: ";
-    pipe.diametr = CorrectInputForInt();
+    while (cin) {
+        
+    }
     cout << "Enter length: ";
     pipe.length = CorrectInputForDouble();
     return pipe;
@@ -86,6 +88,8 @@ void PrintPipe(const Pipe& pipe) {
     cout << "Repair satus: ";
     string result = !pipe.isInRepair ? "Pipe works" : "Pipe does not work";
     cout << result << endl;
+    } else {
+        cout << "Pipe does not exist" << endl;
     }
 }
 
@@ -101,7 +105,7 @@ void SavePipe(ofstream& output,const Pipe& pipe){
     << "length " << pipe.length << endl
     << "Status repair " << pipe.isInRepair << endl;
     } else {
-        output << "Pipe do not exists" << endl;
+        output << "Pipe does not exist" << endl;
     }
 }
 
@@ -114,7 +118,7 @@ void LoadPipe(ifstream& input,Pipe& pipe) {
         ParseStringToDouble(input, pipe.length);
         ParseStringToBool(input, pipe.isInRepair);
     } else {
-        cout << "Pipe does not saved" << endl;
+        cout << "Pipe did not save" << endl;
     }
 }
 
@@ -143,6 +147,10 @@ CompressionStation AddCS() {
     station.numberWorkshopInAtive = countStationAction;
     cout << "Enter station effiency: ";
     station.effiency = CorrectInputForDouble();
+    while(station.effiency > 1) {
+        cout << "Invalid input" << endl;
+        station.effiency = CorrectInputForDouble();
+    }
     return station;
 }
 
@@ -154,6 +162,8 @@ void PrintCS(const CompressionStation& station) {
     cout << "Number of workstations: " << station.numberWorkshop << endl;
     cout << "Number of workstations in action: " << station.numberWorkshopInAtive << endl;
     cout << "Station effiency: " << station.effiency << endl;
+    } else {
+        cout << "Compressor station does not exist" << endl;
     }
 }
 
@@ -178,7 +188,7 @@ void SaveCS(ofstream& output, const CompressionStation& station){
     << "number workshop in action " << station.numberWorkshopInAtive << endl
     << "effiency " << station.effiency;;
     } else {
-        output << "Compressor station do not exists" << endl;
+        output << "Compressor station does not exist" << endl;
     }
 }
 
@@ -192,7 +202,7 @@ void LoadCS(ifstream& input, CompressionStation& station) {
         ParseStringToInt(input, station.numberWorkshopInAtive);
         ParseStringToDouble(input, station.effiency);
     } else {
-        cout << "Compressor station do not saved" << endl;
+        cout << "Compressor station did not save" << endl;
     }
 }
 
@@ -209,26 +219,21 @@ void PrintMenu(){
     cout << "Enter command number: " << endl;
 }
 
-void ShowAllObject(const CompressionStation& station, const Pipe& pipe){
-    if(station.id == -1 && pipe.id == -1){
-        cout << "Object do not exist" << endl;
-    } else {
-        PrintPipe(pipe);
-        PrintCS(station);
-    }
-}
+enum class COMMAND {
+    ADD_PIPE = 1, ADD_CS = 2, SHOW_ALL_OBJECT = 3, CHANGE_PIPE = 4,
+    CHANGE_CS = 5, SAVE = 6, LOAD = 7, EXIT = 0
+};
 
 int main()
 {
-    const string path = "saves.txt";
-    Pipe pipe = {};
-    CompressionStation station  = {};
-    
+    const string PATH_TO_FILE = "saves.txt";
+    Pipe pipe;
+    CompressionStation station;
     for(;;){
         PrintMenu();
         int commandNumber = CorrectInputForInt();
         switch (commandNumber) {
-            case 1:  
+            case static_cast<int>(COMMAND::ADD_PIPE):
             {
                 if (pipe.id == -1){
                     pipe = AddPipe();
@@ -239,7 +244,7 @@ int main()
                 cout << "Pipe added successfully" << endl;
                 break;
             }
-            case 2:
+            case static_cast<int>(COMMAND::ADD_CS):
             {
                 if (station.id == -1){
                     station = AddCS();
@@ -250,12 +255,13 @@ int main()
                 cout << "Compressor station added successfully" << endl;
                 break;
             }
-            case 3:
+            case static_cast<int>(COMMAND::SHOW_ALL_OBJECT):
             {
-                ShowAllObject(station, pipe);
+                PrintPipe(pipe);
+                PrintCS(station);
                 break;
             }
-            case 4:
+            case static_cast<int>(COMMAND::CHANGE_PIPE):
             {
                 if (pipe.id != -1){
                     ChangePipe(pipe);
@@ -264,7 +270,7 @@ int main()
                 }
                 break;
             }
-            case 5:
+            case static_cast<int>(COMMAND::CHANGE_CS):
             {
                 if (station.id != -1){
                 ChangeCs(station);
@@ -273,24 +279,24 @@ int main()
                 }
                 break;
             }
-            case 6:
+            case static_cast<int>(COMMAND::SAVE):
             {
-                ofstream output(path);
+                ofstream output(PATH_TO_FILE);
                 SavePipe(output, pipe);
                 SaveCS(output, station);
                 output.close();
                 cout << "Saved successfully" << endl;
                 break;
             }
-            case 7:
+            case static_cast<int>(COMMAND::LOAD):
             {
-                ifstream input(path);
+                ifstream input(PATH_TO_FILE);
                 LoadPipe(input, pipe);
                 LoadCS(input, station);
                 cout << "Loading completed" << endl;
                 break;
             }
-            case 0:
+            case static_cast<int>(COMMAND::EXIT):
             {
                 cout << "Program execution completed" << endl;
                 return 0;
