@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 void ParseStringToInt(ifstream& input,int& value) {
     string line;
     getline(input,line);
@@ -25,38 +26,18 @@ void ParseStringToBool(ifstream& input,bool& value) {
     value = temp;
 }
 
-bool IsCorrectInput(string& s) {
-    if (s[0] == '.') {
-        cout << "Invalid input" << endl;
-        return false;
-    }
-    for (auto ch : s) {
-        if((ch >= '0' && ch <= '9') || ch == '.') {
-            continue;
-        } else {
+template<typename T>
+void CorrectInput(T& value) {
+    while(true){
+        cin >> value;
+        if (cin.peek() != '\n' || !cin || value < 0) {
             cout << "Invalid input" << endl;
-            return false;
+            cin.clear();
+            cin.ignore(10000,'\n');
+        } else {
+            break;
         }
     }
-    return true;
-}
-
-int CorrectInputForInt(){
-    string value;
-    cin >> value;
-    while(!IsCorrectInput(value)){
-        cin >> value;
-    }
-    return stoi(value);
-}
-
-double CorrectInputForDouble(){
-    string value;
-    cin >> value;
-    while(!IsCorrectInput(value)){
-        cin >> value;
-    }
-    return stod(value);
 }
 
 struct Pipe {
@@ -69,13 +50,11 @@ struct Pipe {
 
 Pipe AddPipe() {
     Pipe pipe = {};
-    pipe.id = 0;
+    pipe.id = 1;
     cout << "Enter diametr: ";
-    while (cin) {
-        
-    }
+    CorrectInput(pipe.diametr);
     cout << "Enter length: ";
-    pipe.length = CorrectInputForDouble();
+    CorrectInput(pipe.length);
     return pipe;
 }
 
@@ -132,24 +111,23 @@ struct CompressionStation {
 
 CompressionStation AddCS() {
     CompressionStation station = {};
-    station.id = 0;
+    station.id = 1;
     cout << "Enter name station: ";
     cin.ignore(1);
     getline(cin,station.name);
     cout << "Enter number of workstaions: ";
-    station.numberWorkshop = CorrectInputForInt();
+    CorrectInput(station.numberWorkshop);
     cout << "Enter number of workstation in action: ";
-    int countStationAction = CorrectInputForInt();
-    while(countStationAction > station.numberWorkshop){
+    CorrectInput(station.numberWorkshopInAtive);  // vernytsa syda
+    while (station.numberWorkshopInAtive > station.numberWorkshop) {
         cout << "Invalid input" << endl;
-        countStationAction = CorrectInputForInt();
+        CorrectInput(station.numberWorkshopInAtive);
     }
-    station.numberWorkshopInAtive = countStationAction;
     cout << "Enter station effiency: ";
-    station.effiency = CorrectInputForDouble();
+    CorrectInput(station.effiency);
     while(station.effiency > 1) {
         cout << "Invalid input" << endl;
-        station.effiency = CorrectInputForDouble();
+        CorrectInput(station.effiency);
     }
     return station;
 }
@@ -170,7 +148,7 @@ void PrintCS(const CompressionStation& station) {
 void ChangeCs(CompressionStation& station) {
     cout << "Enter number workstation in active" << endl;
     int newNumberWorkstationInAction = 0;
-    newNumberWorkstationInAction = CorrectInputForInt();
+    CorrectInput(newNumberWorkstationInAction);
     if(newNumberWorkstationInAction > station.numberWorkshop){
         cout << "Invalid input" << endl;
     } else {
@@ -231,7 +209,8 @@ int main()
     CompressionStation station;
     for(;;){
         PrintMenu();
-        int commandNumber = CorrectInputForInt();
+        int commandNumber = 0;
+        CorrectInput(commandNumber);
         switch (commandNumber) {
             case static_cast<int>(COMMAND::ADD_PIPE):
             {
