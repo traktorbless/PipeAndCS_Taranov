@@ -1,285 +1,327 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <algorithm>
+#include "Pipe.h"
+#include "CompressorStation.h"
+#include "Function.h"
 
 using namespace std;
 
-
-void ParseStringToInt(ifstream& input,int& value) {
-    string line;
-    getline(input,line);
-    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    value = stoi(line);
-}
-
-void ParseStringToDouble(ifstream& input,double& value) {
-    string line;
-    getline(input,line);
-    line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    value = stod(line);
-}
-
-void ParseStringToBool(ifstream& input,bool& value) {
-    int temp = 0;
-    ParseStringToInt(input, temp);
-    value = temp;
-}
-
-template<typename T>
-void CorrectInput(T& value) {
-    while(true){
-        cin >> value;
-        if (cin.peek() != '\n' || !cin || value < 0) {
-            cout << "Invalid input" << endl;
-            cin.clear();
-            cin.ignore(10000,'\n');
-        } else {
-            break;
-        }
-    }
-}
-
-struct Pipe {
-    int id = -1;
-    int diametr;
-    double length;
-    bool isInRepair  = false;
-};
-
-
-Pipe AddPipe() {
-    Pipe pipe = {};
-    pipe.id = 1;
-    cout << "Enter diametr: ";
-    CorrectInput(pipe.diametr);
-    cout << "Enter length: ";
-    CorrectInput(pipe.length);
-    return pipe;
-}
-
-void PrintPipe(const Pipe& pipe) {
-    if (pipe.id != -1) {
-    cout << "Pipe " << pipe.id << endl
-        <<"Its character: " << endl;
-    cout << "Diamter: " << pipe.diametr << endl;
-    cout << "Length: " << pipe.length << endl;
-    cout << "Repair satus: ";
-    string result = !pipe.isInRepair ? "Pipe works" : "Pipe does not work";
-    cout << result << endl;
-    } else {
-        cout << "Pipe does not exist" << endl;
-    }
-}
-
-void ChangePipe(Pipe& pipe){
-    pipe.isInRepair = !pipe.isInRepair;
-}
-
-void SavePipe(ofstream& output,const Pipe& pipe){
-    if (pipe.id != -1){
-    output << "Pipe" << endl
-    << "id " << pipe.id << endl
-    << "diametr " << pipe.diametr << endl
-    << "length " << pipe.length << endl
-    << "Status repair " << pipe.isInRepair << endl;
-    } else {
-        output << "Pipe does not exist" << endl;
-    }
-}
-
-void LoadPipe(ifstream& input,Pipe& pipe) {
-    string line;
-    getline(input,line);
-    if (line == "Pipe") {
-        ParseStringToInt(input, pipe.id);
-        ParseStringToInt(input, pipe.diametr);
-        ParseStringToDouble(input, pipe.length);
-        ParseStringToBool(input, pipe.isInRepair);
-    } else {
-        cout << "Pipe did not save" << endl;
-    }
-}
-
-struct CompressionStation {
-    int id = -1;
-    string name;
-    int numberWorkshop;
-    int numberWorkshopInAtive;
-    double effiency;
-};
-
-CompressionStation AddCS() {
-    CompressionStation station = {};
-    station.id = 1;
-    cout << "Enter name station: ";
-    cin.ignore(1);
-    getline(cin,station.name);
-    cout << "Enter number of workstaions: ";
-    CorrectInput(station.numberWorkshop);
-    cout << "Enter number of workstation in action: ";
-    CorrectInput(station.numberWorkshopInAtive);  // vernytsa syda
-    while (station.numberWorkshopInAtive > station.numberWorkshop) {
-        cout << "Invalid input" << endl;
-        CorrectInput(station.numberWorkshopInAtive);
-    }
-    cout << "Enter station effiency: ";
-    CorrectInput(station.effiency);
-    while(station.effiency > 1) {
-        cout << "Invalid input" << endl;
-        CorrectInput(station.effiency);
-    }
-    return station;
-}
-
-void PrintCS(const CompressionStation& station) {
-    if (station.id != -1) {
-    cout << "Compressor station " << station.id << endl
-    << "Its character: " << endl;
-    cout << "Name: " << station.name << endl;
-    cout << "Number of workstations: " << station.numberWorkshop << endl;
-    cout << "Number of workstations in action: " << station.numberWorkshopInAtive << endl;
-    cout << "Station effiency: " << station.effiency << endl;
-    } else {
-        cout << "Compressor station does not exist" << endl;
-    }
-}
-
-void ChangeCs(CompressionStation& station) {
-    cout << "Enter number workstation in active" << endl;
-    int newNumberWorkstationInAction = 0;
-    CorrectInput(newNumberWorkstationInAction);
-    if(newNumberWorkstationInAction > station.numberWorkshop){
-        cout << "Invalid input" << endl;
-    } else {
-        station.numberWorkshopInAtive = newNumberWorkstationInAction;
-        cout << "New number of workshops: " << newNumberWorkstationInAction << endl;
-    }
-}
-
-void SaveCS(ofstream& output, const CompressionStation& station){
-    if (station.id != -1){
-    output << "Compressor station" << endl
-    << "id " << station.id << endl
-    << "name " << station.name << endl
-    << "number workshop " << station.numberWorkshop << endl
-    << "number workshop in action " << station.numberWorkshopInAtive << endl
-    << "effiency " << station.effiency;;
-    } else {
-        output << "Compressor station does not exist" << endl;
-    }
-}
-
-void LoadCS(ifstream& input, CompressionStation& station) {
-    string line;
-    getline(input,line);
-    if (line == "Compressor station"){
-        ParseStringToInt(input, station.id);
-        getline(input,station.name);
-        ParseStringToInt(input, station.numberWorkshop);
-        ParseStringToInt(input, station.numberWorkshopInAtive);
-        ParseStringToDouble(input, station.effiency);
-    } else {
-        cout << "Compressor station did not save" << endl;
-    }
-}
-
-void PrintMenu(){
+void PrintMainMenu(){
     cout << endl;
-    cout << "1.Add pipe" << endl;
-    cout << "2.Add compressor station" << endl;
+    cout << "1.Pipes" << endl;
+    cout << "2.Compressor stations" << endl;
     cout << "3.Show all object" << endl;
-    cout << "4.Change pipe" << endl;
-    cout << "5.Change compressor station" << endl;
-    cout << "6.Save" << endl;
-    cout << "7.Load" << endl;
+    cout << "4.Save" << endl;
+    cout << "5.Load" << endl;
     cout << "0.Exit" << endl;
     cout << "Enter command number: " << endl;
 }
 
+void PrintPipesMenu() {
+    cout << endl;
+    cout << "1.Add pipe" << endl;
+    cout << "2.Delete pipe" << endl;
+    cout << "3.Change pipe" << endl;
+    cout << "4.Find pipe by id" << endl;
+    cout << "5.Find pipes by status repair" << endl;
+    cout << "6.Print all pipes" << endl;
+    cout << "7.Change set by id" << endl;
+    cout << "8.Change set by status" << endl;
+    cout << "0.Cancel" << endl;
+}
+
+void PrintCSMenu() {
+    cout << endl;
+    cout << "1.Add CS" << endl;
+    cout << "2.Delete CS" << endl;
+    cout << "3.Change CS" << endl;
+    cout << "4.Find cs by id" << endl;
+    cout << "5.Find cs by name" << endl;
+    cout << "6.Find cs by percent" << endl;
+    cout << "7.Print all compressor stations" << endl;
+    cout << "8.Change set by id" << endl;
+    
+    cout << "0.Cancel" << endl;
+}
+
 enum class COMMAND {
-    ADD_PIPE = 1, ADD_CS = 2, SHOW_ALL_OBJECT = 3, CHANGE_PIPE = 4,
-    CHANGE_CS = 5, SAVE = 6, LOAD = 7, EXIT = 0
+    PIPES = 1, CS = 2, SHOW_ALL_OBJECT = 3, SAVE = 4, LOAD = 5, EXIT = 0
+};
+
+enum class PIPE_COMMAND {
+    ADD_PIPE = 1, DEL_PIPE = 2, CHANGE_PIPE = 3, FIND_BY_ID = 4, FIND_BY_STATUS = 5, PRINT_ALL_PIPES = 6,
+    CHANGE_SET_BY_ID = 7, CHANGE_SET_BY_STATUS = 8 ,CANCEL = 0
+};
+
+enum class CS_COMMAND {
+    ADD_CS = 1, DEL_CS = 2, CHANGE_CS = 3, FIND_BY_ID = 4, FIND_BY_NAME = 5, FIND_BY_PERCENT = 6, PRINT_ALL_CS = 7,
+    CHANGE_SET_BY_ID = 8,CANCEL = 0
 };
 
 int main()
 {
-    const string PATH_TO_FILE = "saves.txt";
-    Pipe pipe;
-    CompressionStation station;
+    DatabasePipe dataPipe;
+    DatabaseCS dataCS;
     for(;;){
-        PrintMenu();
+        PrintMainMenu();
         int commandNumber = 0;
         CorrectInput(commandNumber);
         switch (commandNumber) {
-            case static_cast<int>(COMMAND::ADD_PIPE):
+            case static_cast<int>(COMMAND::PIPES):
             {
-                if (pipe.id == -1){
-                    pipe = AddPipe();
-                } else {
-                    cout << "The pipe exists" << endl;
-                    break;
+                PrintPipesMenu();
+                CorrectInput(commandNumber);
+                switch(commandNumber) {
+                    case static_cast<int>(PIPE_COMMAND::ADD_PIPE):
+                    {
+                        dataPipe.AddPipe();
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::DEL_PIPE):
+                    {
+                        cout << "Enter id" << endl;
+                        int id;
+                        CorrectInput(id);
+                        try{
+                            auto it = dataPipe.FindById(id);
+                            dataPipe.DelPipe(it);
+                        } catch(exception& e){
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::CHANGE_PIPE):
+                    {
+                        cout << "Enter id" << endl;
+                        int id;
+                        CorrectInput(id);
+                        try{
+                            auto it = dataPipe.FindById(id);
+                            dataPipe.ChangePipe(it);
+                        }catch (exception& e) {
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::FIND_BY_ID):
+                    {
+                        cout << "Enter id" << endl;
+                        int id;
+                        CorrectInput(id);
+                        try{
+                            auto it = dataPipe.FindById(id);
+                            cout << *it;
+                        } catch(exception& e) {
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::FIND_BY_STATUS):
+                    {
+                        cout << "Enter status repair" << endl;
+                        bool status;
+                        CorrectInput(status);
+                        vector<Pipe> result = dataPipe.FindByStatusRepair(status);
+                        if (!result.empty()) {
+                            for(const auto& pipe : result) {
+                                cout << endl << pipe;
+                            }
+                        } else {
+                            cout << "Pipe does not found" << endl;
+                        }
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::PRINT_ALL_PIPES):
+                    {
+                        dataPipe.PrintPipes(cout);
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::CHANGE_SET_BY_ID):
+                    {
+                        int id1,id2;
+                        cout << "Enter first and second id" << endl;
+                        CorrectInput(id1);
+                        CorrectInput(id2);
+                        while(id2 < id1) {
+                            cout << "Invalid input" << endl;
+                            CorrectInput(id2);
+                        }
+                        try{
+                        dataPipe.ChangeSetById(id1, id2);
+                        } catch(exception& e) {
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::CHANGE_SET_BY_STATUS):
+                    {
+                        bool status;
+                        cout << "Enter status" << endl;
+                        CorrectInput(status);
+                        dataPipe.ChangeSetByStatus(status);
+                        break;
+                    }
+                    case static_cast<int>(PIPE_COMMAND::CANCEL):
+                    {
+                        break;
+                    }
+                    default:
+                    {
+                        cout << "Invalid command" << endl;
+                    }
                 }
-                cout << "Pipe added successfully" << endl;
                 break;
             }
-            case static_cast<int>(COMMAND::ADD_CS):
+            case static_cast<int>(COMMAND::CS):
             {
-                if (station.id == -1){
-                    station = AddCS();
-                } else {
-                    cout << "The compressor station exists" << endl;
-                    break;
+                PrintCSMenu();
+                CorrectInput(commandNumber);
+                switch (commandNumber) {
+                    case static_cast<int>(CS_COMMAND::ADD_CS):
+                    {
+                        dataCS.AddCS();
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::DEL_CS):
+                    {
+                        cout << "Enter id" << endl;
+                        int id;
+                        CorrectInput(id);
+                        try{
+                            auto it = dataCS.FindById(id);
+                            dataCS.DelCS(it);
+                        } catch(exception& e){
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::CHANGE_CS):
+                    {
+                        cout << "Enter id" << endl;
+                        int id;
+                        CorrectInput(id);
+                        try {
+                            auto it = dataCS.FindById(id);
+                            dataCS.ChangeCS(it);
+                        } catch (exception& e) {
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::FIND_BY_ID):
+                    {
+                        cout << "Enter id" << endl;
+                        int id;
+                        CorrectInput(id);
+                        try{
+                            auto it = dataCS.FindById(id);
+                            cout << *it;
+                        } catch(exception& e) {
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::FIND_BY_NAME):
+                    {
+                        cout << "Enter name station" << endl;
+                        string name;
+                        cin.ignore(1);
+                        getline(cin, name);
+                        vector<CompressionStation> result = dataCS.FindByName(name);
+                        if (!result.empty()) {
+                            for(const auto& station : result) {
+                                cout << endl <<station;
+                            }
+                        } else {
+                            cout << "Pipe does not found" << endl;
+                        }
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::FIND_BY_PERCENT):
+                    {
+                        cout << "Enter percent" << endl;
+                        int percent;
+                        CorrectInput(percent);
+                        vector<CompressionStation> result = dataCS.FindByPercent(percent);
+                        if (!result.empty()) {
+                            for(const auto& station : result) {
+                                cout << endl <<station;
+                            }
+                        } else {
+                            cout << "Pipe does not found" << endl;
+                        }
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::PRINT_ALL_CS):
+                    {
+                        dataCS.PrintCS(cout);
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::CHANGE_SET_BY_ID):
+                    {
+                        int id1,id2;
+                        cout << "Enter first and second id" << endl;
+                        CorrectInput(id1);
+                        CorrectInput(id2);
+                        while(id2 < id1) {
+                            cout << "Invalid input" << endl;
+                            CorrectInput(id2);
+                        }
+                        try{
+                        dataCS.ChangeSetById(id1, id2);
+                        } catch(exception& e) {
+                            cout << e.what();
+                        }
+                        break;
+                    }
+                    case static_cast<int>(CS_COMMAND::CANCEL):
+                    {
+                        break;
+                    }
+                    default:
+                        cout << "Invalid command" << endl;
                 }
-                cout << "Compressor station added successfully" << endl;
                 break;
             }
             case static_cast<int>(COMMAND::SHOW_ALL_OBJECT):
             {
-                PrintPipe(pipe);
-                PrintCS(station);
-                break;
-            }
-            case static_cast<int>(COMMAND::CHANGE_PIPE):
-            {
-                if (pipe.id != -1){
-                    ChangePipe(pipe);
-                } else {
-                    cout << "Pipe do not exists" << endl;
-                }
-                break;
-            }
-            case static_cast<int>(COMMAND::CHANGE_CS):
-            {
-                if (station.id != -1){
-                ChangeCs(station);
-                } else {
-                    cout << "Compressor station do not exists" << endl;
-                }
+                dataPipe.PrintPipes(cout);
+                dataCS.PrintCS(cout);
                 break;
             }
             case static_cast<int>(COMMAND::SAVE):
             {
-                ofstream output(PATH_TO_FILE);
-                SavePipe(output, pipe);
-                SaveCS(output, station);
+                string name;
+                cout << "Enter file name" << endl;
+                cin >> name;
+                ofstream output(name + ".txt");
+                dataPipe.PrintPipes(output);
+                dataCS.PrintCS(output);
                 output.close();
-                cout << "Saved successfully" << endl;
                 break;
             }
             case static_cast<int>(COMMAND::LOAD):
             {
-                ifstream input(PATH_TO_FILE);
-                LoadPipe(input, pipe);
-                LoadCS(input, station);
-                cout << "Loading completed" << endl;
+                string name;
+                cout << "Enter file name" << endl;
+                cin >> name;
+                ifstream input(name + ".txt");
+                if(input) {
+                    string line;
+                    while(getline(input,line)) {
+                        if (line == "Pipe") {
+                            dataPipe.LoadPipe(input);
+                        } else if (line == "Compressor station") {
+                            dataCS.LoadCS(input);
+                        }
+                    }
+                } else {
+                    cout << "File doesn't exsist" << endl;
+                }
                 break;
             }
             case static_cast<int>(COMMAND::EXIT):
             {
                 cout << "Program execution completed" << endl;
                 return 0;
-                break;
             }
             default:
                 cout << "Invalid command" << endl;
