@@ -3,18 +3,13 @@
 
 using namespace std;
 
-int CompressionStation::max_id = 1;
+int DatabaseCS::max_id = 1;
 
-CompressionStation::CompressionStation(const std::string& new_name,int new_numberWorkshop, int new_numberWorkshopInActive, double new_effiency, int new_id = max_id++) {
-    id = new_id;
+CompressionStation::CompressionStation(const std::string& new_name,int new_numberWorkshop, int new_numberWorkshopInActive, double new_effiency) {
     name = new_name;
     numberWorkshop = new_numberWorkshop;
     numberWorkshopInAtive = new_numberWorkshopInActive;
     effiency = new_effiency;
-}
-
-int CompressionStation::GetId() const {
-    return id;
 }
 
 string CompressionStation::GetName() const {
@@ -64,79 +59,70 @@ void DatabaseCS::AddCS() {
         CorrectInput(effiency);
     }
     CompressionStation station(name,numberWorkshop,numberWorkshopInActive,effiency);
-    db.push_back(station);
+    while(db.contains(max_id)){
+        ++max_id;
+    }
+    db.emplace(max_id++,station);
 }
 
 void DatabaseCS::LoadCS(istream& is) {
     int id, numberWorkshop,numberWorkshopInActive;
     string name;
     double effiency;
-    ParseString(is, id);
     getline(is,name);
     ParseString(is, numberWorkshop);
     ParseString(is, numberWorkshopInActive);
     ParseString(is, effiency);
-    CompressionStation station(name,numberWorkshop,numberWorkshopInActive,effiency,id);
-    db.push_back(station);
+    CompressionStation station(name,numberWorkshop,numberWorkshopInActive,effiency);
+    ParseString(is, id);
+    db.emplace(id , station);
 }
 
-void DatabaseCS::DelCS(vector<CompressionStation>::const_iterator it) {
-    db.erase(it);
+void DatabaseCS::DelCS(int id) {
+    db.erase(id);
 }
 
-void DatabaseCS::ChangeCS(vector<CompressionStation>::const_iterator it) {
+void DatabaseCS::ChangeCS(int id) {
     cout << "Enter new workstation in active" << endl;
     int new_workstation_in_active;
     CorrectInput(new_workstation_in_active);
-    db[it - begin(db)].ChangeNumberOfWorkstationInActive(new_workstation_in_active);
+    db.at(id).ChangeNumberOfWorkstationInActive(new_workstation_in_active);
 }
 
 void DatabaseCS::PrintCS(ostream& os) const {
-    for (const CompressionStation& station : db) {
-        os << station << endl;
+    for (const auto& [key,station] : db) {
+        os << station;
+        os << "ID " << key << endl << endl;
     }
 }
 
-vector<CompressionStation>::const_iterator DatabaseCS::FindById(int id) const {
-    auto it = find_if(begin(db),end(db),[id](const CompressionStation& station){
-        return id == station.GetId();
-    });
-    if (it == end(db)) {
-        throw logic_error("Pipe does not found");
-    }
-    return it;
+CompressionStation DatabaseCS::FindById(int id) const {
+    return db.at(id);
 }
 
-vector<CompressionStation> DatabaseCS::FindByName(const string& name) const {
-    vector<CompressionStation> result;
-    copy_if(begin(db),end(db),back_inserter(result),[name](const CompressionStation& station){
-        return name == station.GetName();
-    });
+vector<int> DatabaseCS::FindByName(const string& name) const {
+    vector<int> result;
+    for (const auto& [id,station] : db) {
+        if (station.GetName() == name) {
+            result.push_back(id);
+        }
+    }
     return result;
 }
 
-void DatabaseCS::ChangeSetById(int id1, int id2) {
-    auto it1 = FindById(id1);
-    auto it2 = FindById(id2);
-    ChangeCS(it1);
-    while (it1 != it2) {
-        ++it1;
-        ChangeCS(it1);
+vector<int> DatabaseCS::FindByPercent(int percent) const {
+    vector<int> result;
+    for (const auto& [id,station] : db) {
+        if (percent == 100 * double(station.GetNumberWorkshop() - station.GetNumberWorkshopInActive())/station.GetNumberWorkshop()) {
+            result.push_back(id);
+        }
     }
-}
-
-vector<CompressionStation> DatabaseCS::FindByPercent(int percent) const {
-    vector<CompressionStation> result;
-    copy_if(begin(db),end(db),back_inserter(result),[percent](const CompressionStation& station){
-        return percent == 100 * double(station.GetNumberWorkshop() - station.GetNumberWorkshopInActive())/station.GetNumberWorkshop();
-    });
     return result;
 }
 
 ostream& operator<<(ostream& os,const CompressionStation& station) {
     os << "Compressor station" << endl;
-    os << "Id " << station.GetId() << endl;
-    os << station.GetName() << endl;
+    os << "Name " << station.GetName() << endl;
     os << "Number of workshops " << station.GetNumberWorkshop() << endl;
     os << "Number of workshops in active " << station.GetNumberWorkshopInActive() << endl;
     os << "Effiency " << station.GetEffiency() << endl;

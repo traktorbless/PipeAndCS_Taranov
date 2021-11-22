@@ -2,6 +2,7 @@
 #include "CompressorStation.h"
 #include "Function.h"
 
+
 using namespace std;
 
 void PrintMainMenu(){
@@ -18,43 +19,126 @@ void PrintMainMenu(){
 void PrintPipesMenu() {
     cout << endl;
     cout << "1.Add pipe" << endl;
-    cout << "2.Delete pipe" << endl;
-    cout << "3.Change pipe" << endl;
-    cout << "4.Find pipe by id" << endl;
-    cout << "5.Find pipes by status repair" << endl;
-    cout << "6.Print all pipes" << endl;
-    cout << "7.Change set by id" << endl;
-    cout << "8.Change set by status" << endl;
+    cout << "2.Find by filter" << endl;
+    cout << "3.Print all pipes" << endl;
     cout << "0.Cancel" << endl;
 }
 
 void PrintCSMenu() {
     cout << endl;
     cout << "1.Add CS" << endl;
-    cout << "2.Delete CS" << endl;
-    cout << "3.Change CS" << endl;
-    cout << "4.Find cs by id" << endl;
-    cout << "5.Find cs by name" << endl;
-    cout << "6.Find cs by percent" << endl;
-    cout << "7.Print all compressor stations" << endl;
-    cout << "8.Change set by id" << endl;
-    
+    cout << "2.Find by filter" << endl;
+    cout << "3.Print all compressor stations" << endl;
     cout << "0.Cancel" << endl;
 }
+
+void ActionMenu() {
+    cout << endl;
+    cout << "1.Delete" << endl;
+    cout << "2.Print" << endl;
+    cout << "3.Change" << endl;
+}
+
+void PrintFiltersForPipe() {
+    cout << endl;
+    cout << "1.Find by status repair" << endl;
+    cout << "2.Find by name" << endl;
+}
+
+void PrintFiltersForCS() {
+    cout << endl;
+    cout << "1.Find by percent" << endl;
+    cout << "2.Find by name" << endl;
+}
+
 
 enum class COMMAND {
     PIPES = 1, CS = 2, SHOW_ALL_OBJECT = 3, SAVE = 4, LOAD = 5, EXIT = 0
 };
 
 enum class PIPE_COMMAND {
-    ADD_PIPE = 1, DEL_PIPE = 2, CHANGE_PIPE = 3, FIND_BY_ID = 4, FIND_BY_STATUS = 5, PRINT_ALL_PIPES = 6,
-    CHANGE_SET_BY_ID = 7, CHANGE_SET_BY_STATUS = 8 ,CANCEL = 0
+    ADD_PIPE = 1, FIND_BY_FILTER = 2, PRINT_ALL_PIPES = 3 ,CANCEL = 0
+};
+
+enum class ACTION_COMMAND {
+    DELETE = 1, PRINT = 2, CHANGE = 3, CANCEL = 0
+};
+
+enum class PIPE_FILTER {
+    FIND_BY_STATUS = 1, FIND_BY_NAME = 2, CANCEL = 0
 };
 
 enum class CS_COMMAND {
-    ADD_CS = 1, DEL_CS = 2, CHANGE_CS = 3, FIND_BY_ID = 4, FIND_BY_NAME = 5, FIND_BY_PERCENT = 6, PRINT_ALL_CS = 7,
-    CHANGE_SET_BY_ID = 8,CANCEL = 0
+    ADD_CS = 1,FIND_BY_FILTER = 2,PRINT_ALL_CS = 3, CANCEL = 0
 };
+
+enum class CS_FILTER {
+    FIND_BY_PERCENT = 1, FIND_BY_NAME = 2, CANCEL = 0
+};
+
+void ActionWithFilter(DatabasePipe& db, const vector<int>& id_list) {
+    ActionMenu();
+    int commandNumber;
+    CorrectInput(commandNumber);
+    switch (commandNumber) {
+        case static_cast<int>(ACTION_COMMAND::DELETE): {
+            for (const auto& id : id_list) {
+                db.DelPipe(id);
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::PRINT): {
+            for (const auto& id : id_list) {
+                cout << db.FindById(id) << endl;
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::CHANGE): {
+            for (const auto& id : id_list) {
+                db.ChangePipe(id);
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::CANCEL): {
+            break;
+        }
+        default:
+            cout << "Invalid command" << endl;
+            break;
+    }
+}
+
+void ActionWithFilter(DatabaseCS& db, const vector<int>& id_list) {
+    ActionMenu();
+    int commandNumber;
+    CorrectInput(commandNumber);
+    switch (commandNumber) {
+        case static_cast<int>(ACTION_COMMAND::DELETE): {
+            for (const auto& id : id_list) {
+                db.DelCS(id);
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::PRINT): {
+            for (const auto& id : id_list) {
+                cout << db.FindById(id) << endl;
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::CHANGE): {
+            for (const auto& id : id_list) {
+                db.ChangeCS(id);
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::CANCEL): {
+            break;
+        }
+        default:
+            cout << "Invalid command" << endl;
+            break;
+    }
+} // ЭТО ДУБЛИРОВАНИЕ УБЕРУ В ТРЕТЬЕЙ ЛАБЕ КОГДА СДЕЛАЮ NETWORK!!!!!!!!!!!!!!!!!
 
 int main()
 {
@@ -75,88 +159,40 @@ int main()
                         dataPipe.AddPipe();
                         break;
                     }
-                    case static_cast<int>(PIPE_COMMAND::DEL_PIPE):
+                    case static_cast<int>(PIPE_COMMAND::FIND_BY_FILTER):
                     {
-                        cout << "Enter id" << endl;
-                        int id;
-                        CorrectInput(id);
-                        try{
-                            auto it = dataPipe.FindById(id);
-                            dataPipe.DelPipe(it);
-                        } catch(exception& e){
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(PIPE_COMMAND::CHANGE_PIPE):
-                    {
-                        cout << "Enter id" << endl;
-                        int id;
-                        CorrectInput(id);
-                        try{
-                            auto it = dataPipe.FindById(id);
-                            dataPipe.ChangePipe(it);
-                        }catch (exception& e) {
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(PIPE_COMMAND::FIND_BY_ID):
-                    {
-                        cout << "Enter id" << endl;
-                        int id;
-                        CorrectInput(id);
-                        try{
-                            auto it = dataPipe.FindById(id);
-                            cout << *it;
-                        } catch(exception& e) {
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(PIPE_COMMAND::FIND_BY_STATUS):
-                    {
-                        cout << "Enter status repair" << endl;
-                        bool status;
-                        CorrectInput(status);
-                        vector<Pipe> result = dataPipe.FindByStatusRepair(status);
-                        if (!result.empty()) {
-                            for(const auto& pipe : result) {
-                                cout << endl << pipe;
+                        PrintFiltersForPipe();
+                        CorrectInput(commandNumber);
+                        switch(commandNumber) {
+                            case static_cast<int>(PIPE_FILTER::FIND_BY_STATUS): {
+                                bool status;
+                                cout << "Enter status" << endl;
+                                CorrectInput(status);
+                                vector<int> id_list = dataPipe.FindByStatusRepair(status);
+                                ActionWithFilter(dataPipe, id_list);
+                                break;
                             }
-                        } else {
-                            cout << "Pipe does not found" << endl;
+                            case static_cast<int>(PIPE_FILTER::FIND_BY_NAME): {
+                                string name;
+                                cout << "Enter name" << endl;
+                                cin.ignore(1);
+                                getline(cin, name);
+                                vector<int> id_list = dataPipe.FindByName(name);
+                                ActionWithFilter(dataPipe, id_list);
+                                break;
+                            }
+                            case static_cast<int>(PIPE_FILTER::CANCEL): {
+                                break;
+                            }
+                            default:
+                                cout << "Invalid command" << endl;
+                                break;
                         }
                         break;
                     }
                     case static_cast<int>(PIPE_COMMAND::PRINT_ALL_PIPES):
                     {
                         dataPipe.PrintPipes(cout);
-                        break;
-                    }
-                    case static_cast<int>(PIPE_COMMAND::CHANGE_SET_BY_ID):
-                    {
-                        int id1,id2;
-                        cout << "Enter first and second id" << endl;
-                        CorrectInput(id1);
-                        CorrectInput(id2);
-                        while(id2 < id1) {
-                            cout << "Invalid input" << endl;
-                            CorrectInput(id2);
-                        }
-                        try{
-                        dataPipe.ChangeSetById(id1, id2);
-                        } catch(exception& e) {
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(PIPE_COMMAND::CHANGE_SET_BY_STATUS):
-                    {
-                        bool status;
-                        cout << "Enter status" << endl;
-                        CorrectInput(status);
-                        dataPipe.ChangeSetByStatus(status);
                         break;
                     }
                     case static_cast<int>(PIPE_COMMAND::CANCEL):
@@ -180,96 +216,40 @@ int main()
                         dataCS.AddCS();
                         break;
                     }
-                    case static_cast<int>(CS_COMMAND::DEL_CS):
+                    case static_cast<int>(CS_COMMAND::FIND_BY_FILTER):
                     {
-                        cout << "Enter id" << endl;
-                        int id;
-                        CorrectInput(id);
-                        try{
-                            auto it = dataCS.FindById(id);
-                            dataCS.DelCS(it);
-                        } catch(exception& e){
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(CS_COMMAND::CHANGE_CS):
-                    {
-                        cout << "Enter id" << endl;
-                        int id;
-                        CorrectInput(id);
-                        try {
-                            auto it = dataCS.FindById(id);
-                            dataCS.ChangeCS(it);
-                        } catch (exception& e) {
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(CS_COMMAND::FIND_BY_ID):
-                    {
-                        cout << "Enter id" << endl;
-                        int id;
-                        CorrectInput(id);
-                        try{
-                            auto it = dataCS.FindById(id);
-                            cout << *it;
-                        } catch(exception& e) {
-                            cout << e.what();
-                        }
-                        break;
-                    }
-                    case static_cast<int>(CS_COMMAND::FIND_BY_NAME):
-                    {
-                        cout << "Enter name station" << endl;
-                        string name;
-                        cin.ignore(1);
-                        getline(cin, name);
-                        vector<CompressionStation> result = dataCS.FindByName(name);
-                        if (!result.empty()) {
-                            for(const auto& station : result) {
-                                cout << endl <<station;
+                        PrintFiltersForCS();
+                        CorrectInput(commandNumber);
+                        switch(commandNumber) {
+                            case static_cast<int>(CS_FILTER::FIND_BY_PERCENT): {
+                                int percent;
+                                cout << "Enter percent" << endl;
+                                CorrectInput(percent);
+                                vector<int> id_list = dataCS.FindByPercent(percent);
+                                ActionWithFilter(dataCS, id_list);
+                                break;
                             }
-                        } else {
-                            cout << "Pipe does not found" << endl;
-                        }
-                        break;
-                    }
-                    case static_cast<int>(CS_COMMAND::FIND_BY_PERCENT):
-                    {
-                        cout << "Enter percent" << endl;
-                        int percent;
-                        CorrectInput(percent);
-                        vector<CompressionStation> result = dataCS.FindByPercent(percent);
-                        if (!result.empty()) {
-                            for(const auto& station : result) {
-                                cout << endl <<station;
+                            case static_cast<int>(CS_FILTER::FIND_BY_NAME): {
+                                string name;
+                                cout << "Enter name" << endl;
+                                cin.ignore(1);
+                                getline(cin, name);
+                                vector<int> id_list = dataCS.FindByName(name);
+                                ActionWithFilter(dataCS, id_list);
+                                break;
                             }
-                        } else {
-                            cout << "Pipe does not found" << endl;
+                            case static_cast<int>(CS_FILTER::CANCEL): {
+                                break;
+                            }
+                            default:
+                                cout << "Invalid command" << endl;
+                                break;
                         }
                         break;
                     }
                     case static_cast<int>(CS_COMMAND::PRINT_ALL_CS):
                     {
                         dataCS.PrintCS(cout);
-                        break;
-                    }
-                    case static_cast<int>(CS_COMMAND::CHANGE_SET_BY_ID):
-                    {
-                        int id1,id2;
-                        cout << "Enter first and second id" << endl;
-                        CorrectInput(id1);
-                        CorrectInput(id2);
-                        while(id2 < id1) {
-                            cout << "Invalid input" << endl;
-                            CorrectInput(id2);
-                        }
-                        try{
-                        dataCS.ChangeSetById(id1, id2);
-                        } catch(exception& e) {
-                            cout << e.what();
-                        }
                         break;
                     }
                     case static_cast<int>(CS_COMMAND::CANCEL):

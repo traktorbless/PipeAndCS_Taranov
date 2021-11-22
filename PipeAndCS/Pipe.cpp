@@ -4,25 +4,27 @@
 
 using namespace std;
 
-int Pipe::max_id = 1;
+int DatabasePipe::max_id = 1;
 
-Pipe::Pipe(int new_diametr, double new_length,bool new_status = true, int new_id = max_id++) {
-    id = new_id;
+Pipe::Pipe(const string& new_name,int new_diametr, double new_length, bool new_status) {
+    name = new_name;
     diametr = new_diametr;
     length = new_length;
     statusRepair = new_status;
 }
 
 void DatabasePipe::LoadPipe(istream& is) {
-    int id,diametr;
+    string name;
+    int diametr, id;
     double length;
     bool statusRepair;
-    ParseString(is, id);
+    getline(is, name);
     ParseString(is,diametr);
     ParseString(is,length);
     ParseString(is,statusRepair);
-    Pipe p(diametr,length,statusRepair,id);
-    db.push_back(p);
+    Pipe p(name,diametr,length,statusRepair);
+    ParseString(is, id);
+    db.emplace(id,p);
 }
 
 void Pipe::ChangeStatusRepair() {
@@ -33,12 +35,12 @@ bool Pipe::GetStatusRepair() const {
     return statusRepair;
 }
 
-int Pipe::GetId() const {
-    return id;
-}
-
 int Pipe::GetDiametr() const {
     return diametr;
+}
+
+string Pipe::GetName() const {
+    return name;
 }
 
 double Pipe::GetLength() const {
@@ -46,69 +48,65 @@ double Pipe::GetLength() const {
 }
 
 void DatabasePipe::AddPipe() {
+    string name;
     int diametr;
     double length;
+    cout << "Enter name: ";
+    cin.ignore(1);
+    getline(cin,name);
     cout << "Enter diametr: ";
     CorrectInput(diametr);
     cout << "Enter length: ";
     CorrectInput(length);
-    Pipe p(diametr,length);
-    db.push_back(p);
-}
-
-vector<Pipe>::const_iterator DatabasePipe::FindById(int id) const {
-    auto it = find_if(begin(db),end(db),[id](const Pipe& p){
-        return id == p.GetId();
-    });
-    if(it == end(db)) {
-        throw logic_error("Pipe does not found");
+    Pipe p(name,diametr,length,true);
+    while(db.contains(max_id)){
+        ++max_id;
     }
-    return it;
+    db.emplace(max_id++,p);
 }
 
-vector<Pipe> DatabasePipe::FindByStatusRepair(bool status) const {
-    vector<Pipe> result;
-    copy_if(begin(db),end(db),back_inserter(result),[status](const Pipe& pipe){
-        return pipe.GetStatusRepair() == status;
-    });
+Pipe DatabasePipe::FindById(int id) const {
+    return db.at(id);
+}
+
+vector<int> DatabasePipe::FindByName(const string& name) const {
+    vector<int> result;
+    for(auto [id,pipe] : db) {
+        if (pipe.GetName() == name) {
+            result.push_back(id);
+        }
+    }
     return result;
 }
 
-void DatabasePipe::DelPipe(vector<Pipe>::const_iterator it) {
-    db.erase(it);
-}
-
-void DatabasePipe::ChangePipe(vector<Pipe>::const_iterator it) {
-    db[it - begin(db)].ChangeStatusRepair();
-}
-
-void DatabasePipe::ChangeSetById(int id1, int id2) {
-    auto it1 = FindById(id1);
-    auto it2 = FindById(id2);
-    ChangePipe(it1);
-    while (it1 != it2) {
-        ++it1;
-        ChangePipe(it1);
-    }
-}
-
-void DatabasePipe::ChangeSetByStatus(bool status) {
-    for(Pipe& pipe: db) {
+vector<int> DatabasePipe::FindByStatusRepair(bool status) const {
+    vector<int> result;
+    for(auto [id,pipe] : db) {
         if (pipe.GetStatusRepair() == status) {
-            pipe.ChangeStatusRepair();
+            result.push_back(id);
         }
     }
+    return result;
+}
+
+void DatabasePipe::DelPipe(int id) {
+    db.erase(id);
+}
+
+void DatabasePipe::ChangePipe(int id) {
+    db.at(id).ChangeStatusRepair();
 }
 
 void DatabasePipe::PrintPipes(ostream& os) const {
-    for(const Pipe& pipe : db) {
-        os << pipe << endl;
+    for (const auto& [key,pipe] : db) {
+        os << pipe;
+        os << "ID " << key << endl << endl;
     }
 }
 
 ostream& operator<<(ostream& os, const Pipe& pipe) {
     os << "Pipe" << endl;
-    os << "Id " << pipe.GetId() << endl;
+    os << pipe.GetName() << endl;
     os << "Diametr " << pipe.GetDiametr() << endl;
     os << "Length " << pipe.GetLength() << endl;
     os << "Status repair " << pipe.GetStatusRepair() << endl;
