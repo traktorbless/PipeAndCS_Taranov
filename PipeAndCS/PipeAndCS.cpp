@@ -1,6 +1,8 @@
 #include "Pipe.h"
 #include "CompressorStation.h"
 #include "Function.h"
+#include <sstream>
+#include <set>
 
 
 using namespace std;
@@ -34,9 +36,11 @@ void PrintCSMenu() {
 
 void ActionMenu() {
     cout << endl;
-    cout << "1.Delete" << endl;
-    cout << "2.Print" << endl;
-    cout << "3.Change" << endl;
+    cout << "1.Delete all" << endl;
+    cout << "2.Delete selecte" << endl;
+    cout << "3.Change all" << endl;
+    cout << "4.Change selecte" << endl;
+    cout << "0.Cancel" << endl;
 }
 
 void PrintFiltersForPipe() {
@@ -61,7 +65,7 @@ enum class PIPE_COMMAND {
 };
 
 enum class ACTION_COMMAND {
-    DELETE = 1, PRINT = 2, CHANGE = 3, CANCEL = 0
+    DELETE_ALL = 1, DELETE_SELECTE = 2, CHANGE_ALL = 3,CHANGE_SELECTE = 4 , CANCEL = 0
 };
 
 enum class PIPE_FILTER {
@@ -77,25 +81,60 @@ enum class CS_FILTER {
 };
 
 void ActionWithFilter(DatabasePipe& db, const vector<int>& id_list) {
+    int i = 0;
+    for (const auto& id : id_list) {
+        cout << ++i << "." << endl;
+        cout << db.FindById(id) << endl;
+    }
     ActionMenu();
     int commandNumber;
     CorrectInput(commandNumber);
     switch (commandNumber) {
-        case static_cast<int>(ACTION_COMMAND::DELETE): {
+        case static_cast<int>(ACTION_COMMAND::DELETE_ALL): {
             for (const auto& id : id_list) {
                 db.DelPipe(id);
             }
             break;
         }
-        case static_cast<int>(ACTION_COMMAND::PRINT): {
+        case static_cast<int>(ACTION_COMMAND::CHANGE_ALL): {
             for (const auto& id : id_list) {
-                cout << db.FindById(id) << endl;
+                db.ChangePipe(id);
             }
             break;
         }
-        case static_cast<int>(ACTION_COMMAND::CHANGE): {
-            for (const auto& id : id_list) {
-                db.ChangePipe(id);
+        case static_cast<int>(ACTION_COMMAND::DELETE_SELECTE): {
+            cout << "Enter numbers" << endl;
+            set<int> numbers;
+            int id;
+            string line;
+            cin.ignore(1);
+            getline(cin,line);
+            stringstream ss(line);
+            while(ss >> id) {
+                if (id <= id_list.size()){
+                numbers.insert(id);
+                }
+            }
+            for (const auto& i : numbers) {
+                db.DelPipe(id_list[i - 1]);
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::CHANGE_SELECTE): {
+            cout << "Enter numbers" << endl;
+            set<int> numbers;
+            int id;
+            string line;
+            cin.ignore(1);
+            getline(cin,line);
+            stringstream ss(line);
+            while(ss >> id) {
+                if (id <= id_list.size()){
+                numbers.insert(id);
+                }
+            }
+            for (const auto& i : numbers) {
+                db.ChangePipe(id_list[i - 1]);
             }
             break;
         }
@@ -109,25 +148,60 @@ void ActionWithFilter(DatabasePipe& db, const vector<int>& id_list) {
 }
 
 void ActionWithFilter(DatabaseCS& db, const vector<int>& id_list) {
+    int i = 0;
+    for (const auto& id : id_list) {
+        cout << ++i << "." << endl;
+        cout << db.FindById(id) << endl;
+    }
     ActionMenu();
     int commandNumber;
     CorrectInput(commandNumber);
     switch (commandNumber) {
-        case static_cast<int>(ACTION_COMMAND::DELETE): {
+        case static_cast<int>(ACTION_COMMAND::DELETE_ALL): {
             for (const auto& id : id_list) {
                 db.DelCS(id);
             }
             break;
         }
-        case static_cast<int>(ACTION_COMMAND::PRINT): {
+        case static_cast<int>(ACTION_COMMAND::CHANGE_ALL): {
             for (const auto& id : id_list) {
-                cout << db.FindById(id) << endl;
+                db.ChangeCS(id);
             }
             break;
         }
-        case static_cast<int>(ACTION_COMMAND::CHANGE): {
-            for (const auto& id : id_list) {
-                db.ChangeCS(id);
+        case static_cast<int>(ACTION_COMMAND::DELETE_SELECTE): {
+            cout << "Enter numbers" << endl;
+            set<int> numbers;
+            int id;
+            string line;
+            cin.ignore(1);
+            getline(cin,line);
+            stringstream ss(line);
+            while(ss >> id) {
+                if (id <= id_list.size()){
+                numbers.insert(id);
+                }
+            }
+            for (const auto& i : numbers) {
+                db.DelCS(id_list[i - 1]);
+            }
+            break;
+        }
+        case static_cast<int>(ACTION_COMMAND::CHANGE_SELECTE): {
+            cout << "Enter numbers" << endl;
+            set<int> numbers;
+            int id;
+            string line;
+            cin.ignore(1);
+            getline(cin,line);
+            stringstream ss(line);
+            while(ss >> id) {
+                if (id <= id_list.size()){
+                numbers.insert(id);
+                }
+            }
+            for (const auto& i : numbers) {
+                db.ChangeCS(id_list[i - 1]);
             }
             break;
         }
@@ -139,6 +213,8 @@ void ActionWithFilter(DatabaseCS& db, const vector<int>& id_list) {
             break;
     }
 } // ЭТО ДУБЛИРОВАНИЕ УБЕРУ В ТРЕТЬЕЙ ЛАБЕ КОГДА СДЕЛАЮ NETWORK!!!!!!!!!!!!!!!!!
+
+
 
 int main()
 {
@@ -169,7 +245,11 @@ int main()
                                 cout << "Enter status" << endl;
                                 CorrectInput(status);
                                 vector<int> id_list = dataPipe.FindByStatusRepair(status);
+                                if (!id_list.empty()){
                                 ActionWithFilter(dataPipe, id_list);
+                                } else {
+                                    cout << "Pipes does not find" << endl;
+                                }
                                 break;
                             }
                             case static_cast<int>(PIPE_FILTER::FIND_BY_NAME): {
@@ -178,7 +258,11 @@ int main()
                                 cin.ignore(1);
                                 getline(cin, name);
                                 vector<int> id_list = dataPipe.FindByName(name);
+                                if (!id_list.empty()){
                                 ActionWithFilter(dataPipe, id_list);
+                                } else {
+                                    cout << "Pipes does not find" << endl;
+                                }
                                 break;
                             }
                             case static_cast<int>(PIPE_FILTER::CANCEL): {
@@ -226,7 +310,11 @@ int main()
                                 cout << "Enter percent" << endl;
                                 CorrectInput(percent);
                                 vector<int> id_list = dataCS.FindByPercent(percent);
+                                if (!id_list.empty()){
                                 ActionWithFilter(dataCS, id_list);
+                                } else {
+                                    cout << "CS does not find" << endl;
+                                }
                                 break;
                             }
                             case static_cast<int>(CS_FILTER::FIND_BY_NAME): {
@@ -235,7 +323,11 @@ int main()
                                 cin.ignore(1);
                                 getline(cin, name);
                                 vector<int> id_list = dataCS.FindByName(name);
+                                if (!id_list.empty()){
                                 ActionWithFilter(dataCS, id_list);
+                                } else {
+                                    cout << "CS does not find" << endl;
+                                }
                                 break;
                             }
                             case static_cast<int>(CS_FILTER::CANCEL): {
