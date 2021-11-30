@@ -1,6 +1,6 @@
 #include "Pipe.h"
 #include "Function.h"
-#include <sstream>
+
 
 using namespace std;
 
@@ -82,7 +82,7 @@ vector<int> DatabasePipe::FindByName(const string& name) const {
 vector<int> DatabasePipe::FindByStatusRepair(bool status) const {
     vector<int> result;
     for(auto [id,pipe] : db) {
-        if (pipe.GetStatusRepair() == status) {
+        if (pipe.GetStatusRepair() == status) {             
             result.push_back(id);
         }
     }

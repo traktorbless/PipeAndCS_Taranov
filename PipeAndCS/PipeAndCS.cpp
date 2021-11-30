@@ -1,7 +1,6 @@
 #include "Pipe.h"
 #include "CompressorStation.h"
 #include "Function.h"
-#include <sstream>
 #include <set>
 
 
@@ -355,6 +354,7 @@ int main()
             }
             case static_cast<int>(COMMAND::SHOW_ALL_OBJECT):
             {
+                cout << endl;
                 dataPipe.PrintPipes(cout);
                 dataCS.PrintCS(cout);
                 break;

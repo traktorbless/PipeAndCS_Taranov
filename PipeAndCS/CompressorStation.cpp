@@ -24,6 +24,11 @@ int CompressionStation::GetNumberWorkshopInActive() const {
     return numberWorkshopInAtive;
 }
 
+int CompressionStation::GetPercentOfUnactiveWorkshop() const
+{
+    return 100 * double(numberWorkshop - numberWorkshopInAtive) / numberWorkshop;
+}
+
 void CompressionStation::ChangeNumberOfWorkstationInActive(int new_number_workshop_active) {
         if(new_number_workshop_active > numberWorkshop){
             cout << "Invalid input" << endl;

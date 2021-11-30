@@ -2,8 +2,6 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include <functional>
-#include <memory>
 
 class Pipe {
 public:

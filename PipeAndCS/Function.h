@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -11,7 +12,8 @@ void ParseString(istream& input,T& value) {
     string line;
     getline(input,line);
     line.erase(remove_if(line.begin(),line.end(),::isalpha),line.end());
-    value = stod(line);
+    stringstream ss(line);
+    ss >> value;
 }
 
 template<typename T>

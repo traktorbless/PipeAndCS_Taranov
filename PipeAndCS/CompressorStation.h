@@ -14,6 +14,8 @@ public:
     int GetNumberWorkshop() const;
     
     int GetNumberWorkshopInActive() const;
+
+    int GetPercentOfUnactiveWorkshop() const;
     
     double GetEffiency() const;
 

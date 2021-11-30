@@ -1,0 +1,7 @@
+Pipe
+test
+Diametr 500
+Length 600
+Status repair 1
+ID 1
+
