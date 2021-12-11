@@ -5,98 +5,70 @@
 #include <vector>
 #include <unordered_map>
 
-enum class PIPE_COMMAND {
-    ADD_PIPE = 1, FIND_BY_FILTER = 2, PRINT_ALL_PIPES = 3, CANCEL = 0
+class Database {
+public:
+	virtual void Add() = 0;
+
+	virtual void Delete(int id) = 0;
+
+	virtual void Change(int id) = 0;
+
+	virtual void Print(std::ostream& os) const = 0;
+
+	virtual void Load(std::istream& is) = 0;
+
+	virtual void FindById(int id) const = 0;
+
 };
 
-enum class FILTER_TYPE {
-    FIND_PIPE_BY_STATUS, FIND_PIPE_BY_NAME, FIND_CS_BY_PERCENT, FIND_CS_BY_NAME
-};
+class DataPipe : public Database {
+public:
 
-enum class CS_COMMAND {
-    ADD_CS = 1, FIND_BY_FILTER = 2, PRINT_ALL_CS = 3, CANCEL = 0
-};
+	void Add() override;
 
-enum class COMMAND {
-    PIPES = 1, CS = 2, SHOW_ALL_OBJECT = 3, SAVE = 4, LOAD = 5, EXIT = 0
-};
+	void Delete(int id) override;
 
-class Network
-{
-    void AddPipe();
+	void Change(int id) override;
 
-    void DelPipe(int id);
+	void Print(std::ostream& os)const override;
 
-    void ChangePipe(int id);
+	void Load(std::istream& is) override;
 
-    void PrintPipes(std::ostream& os) const; // Сделать один метод
+	void FindById(int id) const;
 
-    void LoadPipe(std::istream& is);
+	std::vector<int> FindByName(const std::string& name) const;
 
-    template<typename Object>
-    Object FindById(int id, COMMAND command) const {
-        if (command == COMMAND::PIPES) {
-            return dataPipe.at(id);
-        }
-        if (command == COMMAND::CS) {
-            return dataCS.at(id);
-        }
-    }
-
-    void AddCS();
-
-    void DelCS(int id);
-
-    void ChangeCS(int id);
-
-    void PrintCS(std::ostream& os) const;
-
-    void LoadCS(std::istream& is);
-
-    template <typename Filter>
-    std::vector<int> FindByFilter(Filter filter, FILTER_TYPE command) {
-        std::vector<int> result;
-        if (command == FILTER_TYPE::FIND_PIPE_BY_NAME) {
-            for (auto [id, object] : dataPipe) {
-                Filter(result, object.GetName, filter, id);
-            }
-            return result;
-        }
-
-        if (command == FILTER_TYPE::FIND_PIPE_BY_STATUS) {
-            for (auto [id, object] : dataPipe) {
-                Filter(result, object.GetStatusRepair, filter, id);
-            }
-            return result;
-        }
-
-        if (command == FILTER_TYPE::FIND_CS_BY_NAME) {
-            for (auto [id, object] : dataCS) {
-                Filter(result, object.GetName, filter, id);
-            }
-            return result;
-        }
-
-        if (command == FILTER_TYPE::FIND_CS_BY_PERCENT) {
-            for (auto [id, object] : dataCS) {
-                Filter(result, object.GetPercentOfUnactiveWorkshop, filter, id);
-            }
-            return result;
-        }
-    }
+	std::vector<int> FindByStatusRepair(bool status) const;
 
 private:
-    static int max_id_pipe, max_id_cs;
-    std::unordered_map<int, Pipe> dataPipe;
-    std::unordered_map<int, CompressionStation> dataCS;
-
-    template <typename T>
-    void Filter(const std::vector<int>& v, T foo(), T filter, int id) {
-        if (filter == foo()) {
-            v.push_back(id);
-        }
-    }
+	static int max_id;
+	std::unordered_map<int, Pipe> db;
 };
 
+class DataCS : public Database {
+public:
 
+	void Add() override;
 
+	void Delete(int id) override;
+
+	void Change(int id) override;
+
+	void Print(std::ostream& os) const override;
+
+	void Load(std::istream& is) override;
+
+	void FindById(int id) const;
+
+	std::vector<int> FindByName(const std::string& name) const;
+
+	std::vector<int> FindByPercent(int percent) const;
+
+private:
+	static int max_id;
+	std::unordered_map<int, CompressionStation> db;
+};
+
+class Network {
+
+};
