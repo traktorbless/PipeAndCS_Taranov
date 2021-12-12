@@ -16,12 +16,18 @@ public:
     int GetDiametr() const;
     
     double GetLength() const;
+
+    bool GetStatusConnect() const;
+
+    void ChangeStatusConnect();
     
 private:
     std::string name;
     int diametr;
     double length;
     bool statusRepair;
+    bool is_connect;
+    int id_InCS, id_OutCS;
 };
 
 std::ostream& operator<<(std::ostream& os,const Pipe& pipe);

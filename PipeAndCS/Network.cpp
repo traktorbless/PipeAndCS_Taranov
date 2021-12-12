@@ -53,7 +53,12 @@ void DataCS::Add() {
 }
 
 void DataPipe::Delete(int id) {
-    db.erase(id);
+    if (!db.at(id).GetStatusConnect()) {
+        db.erase(id);
+    }
+    else {
+        cout << "Pipe with ID " << id << "can't be removed, because it connects the compressor stations" << endl;
+    }
 }
 
 void DataCS::Delete(int id) {
@@ -161,4 +166,8 @@ vector<int> DataCS::FindByPercent(int percent) const {
         }
     }
     return result;
+}
+
+Pipe& DataPipe::PipeById(int id) {
+    return db.at(id);
 }

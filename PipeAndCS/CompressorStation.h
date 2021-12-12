@@ -26,6 +26,7 @@ private:
     int numberWorkshop;
     int numberWorkshopInAtive;
     double effiency;
+    int inputPipe, outputPipe;
 };
 
 std::ostream& operator<<(std::ostream& os,const CompressionStation& station);

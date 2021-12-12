@@ -4,6 +4,8 @@
 #include "Function.h"
 #include <vector>
 #include <unordered_map>
+#include <set>
+#include <map>
 
 class Database {
 public:
@@ -40,6 +42,8 @@ public:
 
 	std::vector<int> FindByStatusRepair(bool status) const;
 
+	Pipe& PipeById(int id);
+
 private:
 	static int max_id;
 	std::unordered_map<int, Pipe> db;
@@ -69,6 +73,24 @@ private:
 	std::unordered_map<int, CompressionStation> db;
 };
 
+struct PairCS {
+	PairCS(int new_outCS, int new_inCS) : outCS(new_outCS), inCS(new_inCS) {}
+	const int outCS;
+	const int inCS;
+};
+
 class Network {
+public:
+
+	void Connect(int pipe_id, int OutCS_id, int InCS_id);
+	
+	void Disconnect(int pipe_id);
+
+	DataCS dataCS;
+
+	DataPipe dataPipe;
+
+private:
+	std::unordered_map<int, PairCS> dataConnection;
 
 };

@@ -31,6 +31,14 @@ double Pipe::GetLength() const {
     return length;
 }
 
+bool Pipe::GetStatusConnect() const {
+    return is_connect;
+}
+
+void Pipe::ChangeStatusConnect() {
+    is_connect = !is_connect;
+}
+
 ostream& operator<<(ostream& os, const Pipe& pipe) {
     os << "Pipe" << endl;
     os << pipe.GetName() << endl;

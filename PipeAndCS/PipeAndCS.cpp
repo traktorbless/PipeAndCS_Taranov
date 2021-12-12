@@ -11,9 +11,10 @@ void PrintMainMenu(){
     cout << endl;
     cout << "1.Pipes" << endl;
     cout << "2.Compressor stations" << endl;
-    cout << "3.Show all object" << endl;
-    cout << "4.Save" << endl;
-    cout << "5.Load" << endl;
+    cout << "3.Network" << endl;
+    cout << "4.Show all object" << endl;
+    cout << "5.Save" << endl;
+    cout << "6.Load" << endl;
     cout << "0.Exit" << endl;
     cout << "Enter command number: " << endl;
 }
@@ -31,6 +32,14 @@ void PrintCSMenu() {
     cout << "1.Add CS" << endl;
     cout << "2.Find by filter" << endl;
     cout << "3.Print all compressor stations" << endl;
+    cout << "0.Cancel" << endl;
+}
+
+void NetworkMenu() {
+    cout << endl;
+    cout << "1.Connect" << endl;
+    cout << "2.Disconnect" << endl;
+    cout << "3.Topology Sort" << endl;
     cout << "0.Cancel" << endl;
 }
 
@@ -57,7 +66,7 @@ void PrintFiltersForCS() {
 
 
 enum class COMMAND {
-    PIPES = 1, CS = 2, SHOW_ALL_OBJECT = 3, SAVE = 4, LOAD = 5, EXIT = 0
+    PIPES = 1, CS = 2, NETWORK = 3, SHOW_ALL_OBJECT = 4, SAVE = 5, LOAD = 6, EXIT = 0
 };
 
 enum class PIPE_COMMAND {
@@ -78,6 +87,10 @@ enum class CS_COMMAND {
 
 enum class CS_FILTER {
     FIND_BY_PERCENT = 1, FIND_BY_NAME = 2, CANCEL = 0
+};
+
+enum class NETWORK_COMMAND {
+    CONNECT = 1, DISCONNECT = 2, TOPOLOGY_SORT = 3, CANCEL = 0
 };
 
 set<int> inputNumbers(size_t size) {
@@ -143,8 +156,7 @@ void ActionWithFilter(Database& db, const vector<int>& id_list) {
 
 int main()
 {
-    DataPipe dataPipe;
-    DataCS dataCS;
+    Network network;
     for(;;){
         PrintMainMenu();
         int commandNumber = 0;
@@ -157,7 +169,7 @@ int main()
                 switch(commandNumber) {
                     case static_cast<int>(PIPE_COMMAND::ADD_PIPE):
                     {
-                        dataPipe.Add();
+                        network.dataPipe.Add();
                         break;
                     }
                     case static_cast<int>(PIPE_COMMAND::FIND_BY_FILTER):
@@ -169,9 +181,9 @@ int main()
                                 bool status;
                                 cout << "Enter status" << endl;
                                 CorrectInput(status);
-                                vector<int> id_list = dataPipe.FindByStatusRepair(status);
+                                vector<int> id_list = network.dataPipe.FindByStatusRepair(status);
                                 if (!id_list.empty()){
-                                ActionWithFilter(dataPipe, id_list);
+                                ActionWithFilter(network.dataPipe, id_list);
                                 } else {
                                     cout << "Pipes does not find" << endl;
                                 }
@@ -182,9 +194,9 @@ int main()
                                 cout << "Enter name" << endl;
                                 cin.ignore(1);
                                 getline(cin, name);
-                                vector<int> id_list = dataPipe.FindByName(name);
+                                vector<int> id_list = network.dataPipe.FindByName(name);
                                 if (!id_list.empty()){
-                                ActionWithFilter(dataPipe, id_list);
+                                ActionWithFilter(network.dataPipe, id_list);
                                 } else {
                                     cout << "Pipes does not find" << endl;
                                 }
@@ -201,7 +213,7 @@ int main()
                     }
                     case static_cast<int>(PIPE_COMMAND::PRINT_ALL_PIPES):
                     {
-                        dataPipe.Print(cout);
+                        network.dataPipe.Print(cout);
                         break;
                     }
                     case static_cast<int>(PIPE_COMMAND::CANCEL):
@@ -222,7 +234,7 @@ int main()
                 switch (commandNumber) {
                     case static_cast<int>(CS_COMMAND::ADD_CS):
                     {
-                        dataCS.Add();
+                        network.dataCS.Add();
                         break;
                     }
                     case static_cast<int>(CS_COMMAND::FIND_BY_FILTER):
@@ -234,9 +246,9 @@ int main()
                                 int percent;
                                 cout << "Enter percent" << endl;
                                 CorrectInput(percent);
-                                vector<int> id_list = dataCS.FindByPercent(percent);
+                                vector<int> id_list = network.dataCS.FindByPercent(percent);
                                 if (!id_list.empty()){
-                                ActionWithFilter(dataCS, id_list);
+                                ActionWithFilter(network.dataCS, id_list);
                                 } else {
                                     cout << "CS does not find" << endl;
                                 }
@@ -247,9 +259,9 @@ int main()
                                 cout << "Enter name" << endl;
                                 cin.ignore(1);
                                 getline(cin, name);
-                                vector<int> id_list = dataCS.FindByName(name);
+                                vector<int> id_list = network.dataCS.FindByName(name);
                                 if (!id_list.empty()){
-                                ActionWithFilter(dataCS, id_list);
+                                ActionWithFilter(network.dataCS, id_list);
                                 } else {
                                     cout << "CS does not find" << endl;
                                 }
@@ -266,7 +278,7 @@ int main()
                     }
                     case static_cast<int>(CS_COMMAND::PRINT_ALL_CS):
                     {
-                        dataCS.Print(cout);
+                        network.dataCS.Print(cout);
                         break;
                     }
                     case static_cast<int>(CS_COMMAND::CANCEL):
@@ -278,11 +290,52 @@ int main()
                 }
                 break;
             }
+            case static_cast<int>(COMMAND::NETWORK):
+            {
+                NetworkMenu();
+                CorrectInput(commandNumber);
+                switch (commandNumber) {
+                case static_cast<int>(NETWORK_COMMAND::CONNECT):
+                {
+                    int pipe_id, inCS_id, outCS_id;
+                    cout << "Enter pipe id" << endl;
+                    CorrectInput(pipe_id);
+                    cout << "Enter input CS id" << endl;
+                    CorrectInput(inCS_id);
+                    cout << "Enter output CS id" << endl;
+                    CorrectInput(outCS_id);
+                    while (outCS_id == inCS_id) {
+                        CorrectInput(outCS_id);
+                    }
+                    network.Connect(pipe_id, inCS_id, outCS_id);
+                }
+                case static_cast<int>(NETWORK_COMMAND::DISCONNECT):
+                {
+                    int pipe_id;
+                    cout << "Enter pipe id" << endl;
+                    CorrectInput(pipe_id);
+                    network.Disconnect(pipe_id);
+                    break;
+                }
+                case static_cast<int>(NETWORK_COMMAND::TOPOLOGY_SORT):
+                {
+                    network.TopologSort();
+                    break;
+                }
+                case static_cast<int>(NETWORK_COMMAND::CANCEL):
+                {
+                    break;
+                }
+                default:
+                    cout << "Invalid input" << endl;
+                }
+                break;
+            }
             case static_cast<int>(COMMAND::SHOW_ALL_OBJECT):
             {
                 cout << endl;
-                dataPipe.Print(cout);
-                dataCS.Print(cout);
+                network.dataPipe.Print(cout);
+                network.dataCS.Print(cout);
                 break;
             }
             case static_cast<int>(COMMAND::SAVE):
@@ -291,8 +344,8 @@ int main()
                 cout << "Enter file name" << endl;
                 cin >> name;
                 ofstream output(name + ".txt");
-                dataPipe.Print(output);
-                dataCS.Print(output);
+                network.dataPipe.Print(output);
+                network.dataCS.Print(output);
                 output.close();
                 break;
             }
@@ -306,9 +359,9 @@ int main()
                     string line;
                     while(getline(input,line)) {
                         if (line == "Pipe") {
-                            dataPipe.Load(input);
+                            network.dataPipe.Load(input);
                         } else if (line == "Compressor station") {
-                            dataCS.Load(input);
+                            network.dataCS.Load(input);
                         }
                     }
                 } else {
