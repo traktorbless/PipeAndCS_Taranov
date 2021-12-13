@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <set>
 #include <map>
+#include <set>
 
 class Database {
 public:
@@ -20,6 +21,8 @@ public:
 	virtual void Load(std::istream& is) = 0;
 
 	virtual void FindById(int id) const = 0;
+    
+    virtual bool Contains(int id) const = 0;
 
 };
 
@@ -36,7 +39,11 @@ public:
 
 	void Load(std::istream& is) override;
 
-	void FindById(int id) const;
+	void FindById(int id) const override;
+    
+    bool Contains(int id) const override;
+    
+    void PrintFreePipe() const;
 
 	std::vector<int> FindByName(const std::string& name) const;
 
@@ -61,8 +68,12 @@ public:
 	void Print(std::ostream& os) const override;
 
 	void Load(std::istream& is) override;
+    
+    bool Contains(int id) const override;
 
-	void FindById(int id) const;
+	void FindById(int id) const override;
+    
+    CompressionStation& CsById(int id);
 
 	std::vector<int> FindByName(const std::string& name) const;
 
@@ -74,9 +85,13 @@ private:
 };
 
 struct PairCS {
-	PairCS(int new_outCS, int new_inCS) : outCS(new_outCS), inCS(new_inCS) {}
-	const int outCS;
-	const int inCS;
+	PairCS(int outCS, int inCS) {
+        this->outCS = outCS;
+        this->inCS = inCS;
+    }
+    PairCS() = default;
+    int outCS;
+	int inCS;
 };
 
 class Network {
@@ -85,12 +100,29 @@ public:
 	void Connect(int pipe_id, int OutCS_id, int InCS_id);
 	
 	void Disconnect(int pipe_id);
+    
+    void PrintAllConnection(std::ostream& os) const;
+    
+    void LoadConnection(std::istream& os);
+    
+    bool CheckGraph();
+    
+    void topologicalSort();
 
 	DataCS dataCS;
 
 	DataPipe dataPipe;
 
 private:
+    
 	std::unordered_map<int, PairCS> dataConnection;
+    
+    std::unordered_map<int, std::set<int>> graph;
+    
+    std::set<int> connected_cs;
+    
+    void topologicalSortUtil(int v, unordered_map<int,bool>& visited, stack<int> &Stack);
 
 };
+
+bool operator==(const PairCS& lhs, const PairCS& rhs);

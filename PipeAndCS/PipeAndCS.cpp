@@ -40,6 +40,7 @@ void NetworkMenu() {
     cout << "1.Connect" << endl;
     cout << "2.Disconnect" << endl;
     cout << "3.Topology Sort" << endl;
+    cout << "4.Print all connections" << endl;
     cout << "0.Cancel" << endl;
 }
 
@@ -90,7 +91,7 @@ enum class CS_FILTER {
 };
 
 enum class NETWORK_COMMAND {
-    CONNECT = 1, DISCONNECT = 2, TOPOLOGY_SORT = 3, CANCEL = 0
+    CONNECT = 1, DISCONNECT = 2, TOPOLOGY_SORT = 3, PRINT_ALL_CONECTIONS = 4, CANCEL = 0
 };
 
 set<int> inputNumbers(size_t size) {
@@ -297,6 +298,7 @@ int main()
                 switch (commandNumber) {
                 case static_cast<int>(NETWORK_COMMAND::CONNECT):
                 {
+                    network.dataPipe.PrintFreePipe();
                     int pipe_id, inCS_id, outCS_id;
                     cout << "Enter pipe id" << endl;
                     CorrectInput(pipe_id);
@@ -305,9 +307,11 @@ int main()
                     cout << "Enter output CS id" << endl;
                     CorrectInput(outCS_id);
                     while (outCS_id == inCS_id) {
+                        cout << "Invalid input" << endl;
                         CorrectInput(outCS_id);
                     }
-                    network.Connect(pipe_id, inCS_id, outCS_id);
+                    network.Connect(pipe_id, outCS_id, inCS_id);
+                    break;
                 }
                 case static_cast<int>(NETWORK_COMMAND::DISCONNECT):
                 {
@@ -319,7 +323,16 @@ int main()
                 }
                 case static_cast<int>(NETWORK_COMMAND::TOPOLOGY_SORT):
                 {
-                    network.TopologSort();
+                    if(!network.CheckGraph()) {
+                    network.topologicalSort();
+                    } else {
+                        cout << "topological sorting is not possible" << endl;
+                    }
+                    break;
+                }
+                case static_cast<int>(NETWORK_COMMAND::PRINT_ALL_CONECTIONS):
+                {
+                    network.PrintAllConnection(cout);
                     break;
                 }
                 case static_cast<int>(NETWORK_COMMAND::CANCEL):
@@ -346,6 +359,7 @@ int main()
                 ofstream output(name + ".txt");
                 network.dataPipe.Print(output);
                 network.dataCS.Print(output);
+                network.PrintAllConnection(output);
                 output.close();
                 break;
             }
@@ -362,6 +376,8 @@ int main()
                             network.dataPipe.Load(input);
                         } else if (line == "Compressor station") {
                             network.dataCS.Load(input);
+                        } else if (line == "Connection") {
+                            network.LoadConnection(input);
                         }
                     }
                 } else {

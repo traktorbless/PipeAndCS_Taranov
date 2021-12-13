@@ -5,7 +5,7 @@
 
 class Pipe {
 public:
-    Pipe(const std::string& name,int new_diametr, double new_length, bool new_status);
+    Pipe(const std::string& name,int new_diametr, double new_length, bool new_status, bool new_status_connect = false);
     
     void ChangeStatusRepair();
     
@@ -27,7 +27,6 @@ private:
     double length;
     bool statusRepair;
     bool is_connect;
-    int id_InCS, id_OutCS;
 };
 
 std::ostream& operator<<(std::ostream& os,const Pipe& pipe);

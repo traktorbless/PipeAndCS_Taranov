@@ -57,7 +57,7 @@ void DataPipe::Delete(int id) {
         db.erase(id);
     }
     else {
-        cout << "Pipe with ID " << id << "can't be removed, because it connects the compressor stations" << endl;
+        cout << "Pipe with ID " << id << " can't be removed, because it connects the compressor stations" << endl;
     }
 }
 
@@ -94,11 +94,12 @@ void DataPipe::Load(istream& is) {
     string name;
     int diametr, id;
     double length;
-    bool statusRepair;
+    bool statusRepair,statusConnect;
     getline(is, name);
     ParseString(is, diametr);
     ParseString(is, length);
     ParseString(is, statusRepair);
+    ParseString(is, statusConnect);
     Pipe p(name, diametr, length, statusRepair);
     ParseString(is, id);
     db.emplace(id, p);
@@ -170,4 +171,126 @@ vector<int> DataCS::FindByPercent(int percent) const {
 
 Pipe& DataPipe::PipeById(int id) {
     return db.at(id);
+}
+
+bool DataCS::Contains(int id) const {
+    return db.contains(id);
+}
+
+bool DataPipe::Contains(int id) const {
+    return db.contains(id);
+}
+
+void Network::Connect(int pipe_id, int OutCS_id, int InCS_id) {
+    if (dataCS.Contains(OutCS_id) && dataCS.Contains(InCS_id) && dataPipe.Contains(pipe_id)) {
+    if (!dataConnection.contains(pipe_id)) {
+        dataConnection.emplace(pipe_id, PairCS(OutCS_id,InCS_id));
+        graph[OutCS_id].insert(InCS_id);
+        connected_cs.insert(OutCS_id);
+        connected_cs.insert(InCS_id);
+        dataPipe.PipeById(pipe_id).ChangeStatusConnect();
+    } else {
+        cout << "Pipe is already connected" << endl;
+    }
+    } else {
+        cout << "Error" << endl;
+    }
+}
+
+void Network::Disconnect(int pipe_id) {
+    if (dataConnection.contains(pipe_id)) {
+        dataConnection.erase(pipe_id);
+        bool flag = true;
+        for(const auto& [pipe,pair] : dataConnection) {
+            if (pair == dataConnection[pipe_id]) {
+                flag = false;
+            };
+        }
+        if (flag) {
+        graph[dataConnection[pipe_id].outCS].erase(dataConnection[pipe_id].inCS);
+        }
+        dataPipe.PipeById(pipe_id).ChangeStatusConnect();
+    } else {
+        cout << "Pipe does not connected" << endl;
+    }
+}
+
+bool Network::CheckGraph(){
+    for (const auto& [outCS, inCS] : graph) {
+        for (auto i : inCS) {
+            for (auto m : graph[i]) {
+                if (outCS == m) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+void Network::topologicalSortUtil(int v, unordered_map<int,bool>& visited, stack<int> &Stack) {
+    // Помечаем текущий узел как посещенный
+    visited[v] = true;
+  
+    // Рекурсивно вызываем функцию для всех смежных вершин
+    for (const auto& i : graph[v])
+        if (!visited[i])
+            topologicalSortUtil(i, visited, Stack);
+  
+    // Добавляем текущую вершину в стек с результатом
+    Stack.push(v);
+}
+
+void Network::topologicalSort(){
+    stack<int> Stack;
+  
+    // Помечаем все вершины как непосещенные
+    unordered_map<int, bool> visit;
+    
+    for (const auto& i : connected_cs) {
+        visit[i] = false;
+    }
+    // Вызываем рекурсивную вспомогательную функцию
+    // для поиска топологической сортировки для каждой вершины
+    for (const auto& key : connected_cs)
+      if (visit[key] == false)
+        topologicalSortUtil(key, visit, Stack);
+  
+    // Выводим содержимое стека
+    while (Stack.empty() == false)
+    {
+        dataCS.FindById(Stack.top());
+        Stack.pop();
+    }
+}
+
+void DataPipe::PrintFreePipe() const {
+    for (const auto& [id, pipe] : db) {
+        if (!pipe.GetStatusConnect()) {
+            cout << "ID " << id << endl;
+            cout << pipe << endl;
+        }
+    }
+}
+
+void Network::PrintAllConnection(ostream& os) const {
+    for (const auto& [pipe_id, pairCS] : dataConnection) {
+        os << "Connection" << endl;
+        os << "Pipe ID " << pipe_id << endl;
+        os << "OutCS " << pairCS.outCS << endl;
+        os << "InputCS " << pairCS.inCS << endl;
+        os << endl;
+    }
+}
+
+void Network::LoadConnection(istream& is) {
+    int pipe_id, outCS_id,inCS_id;
+    ParseString(is, pipe_id);
+    ParseString(is, outCS_id);
+    ParseString(is, inCS_id);
+    Connect(pipe_id, outCS_id, inCS_id);
+}
+
+bool operator==(const PairCS& lhs, const PairCS& rhs) {
+    return lhs.outCS == rhs.outCS && lhs.inCS == rhs.inCS;
 }
