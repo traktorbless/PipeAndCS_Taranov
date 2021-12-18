@@ -1,70 +1,12 @@
-#include "Pipe.h"
-#include "CompressorStation.h"
-#include "Function.h"
 #include "Network.h"
-#include <set>
+#include "Console.h"
 
+/*
+ 1. Сделать запрет на удаление подключенных станций
+ 2. 
+ **/
 
 using namespace std;
-
-void PrintMainMenu(){
-    cout << endl;
-    cout << "1.Pipes" << endl;
-    cout << "2.Compressor stations" << endl;
-    cout << "3.Network" << endl;
-    cout << "4.Show all object" << endl;
-    cout << "5.Save" << endl;
-    cout << "6.Load" << endl;
-    cout << "0.Exit" << endl;
-    cout << "Enter command number: " << endl;
-}
-
-void PrintPipesMenu() {
-    cout << endl;
-    cout << "1.Add pipe" << endl;
-    cout << "2.Find by filter" << endl;
-    cout << "3.Print all pipes" << endl;
-    cout << "0.Cancel" << endl;
-}
-
-void PrintCSMenu() {
-    cout << endl;
-    cout << "1.Add CS" << endl;
-    cout << "2.Find by filter" << endl;
-    cout << "3.Print all compressor stations" << endl;
-    cout << "0.Cancel" << endl;
-}
-
-void NetworkMenu() {
-    cout << endl;
-    cout << "1.Connect" << endl;
-    cout << "2.Disconnect" << endl;
-    cout << "3.Topology Sort" << endl;
-    cout << "4.Print all connections" << endl;
-    cout << "0.Cancel" << endl;
-}
-
-void ActionMenu() {
-    cout << endl;
-    cout << "1.Delete all" << endl;
-    cout << "2.Delete selecte" << endl;
-    cout << "3.Change all" << endl;
-    cout << "4.Change selecte" << endl;
-    cout << "0.Cancel" << endl;
-}
-
-void PrintFiltersForPipe() {
-    cout << endl;
-    cout << "1.Find by status repair" << endl;
-    cout << "2.Find by name" << endl;
-}
-
-void PrintFiltersForCS() {
-    cout << endl;
-    cout << "1.Find by percent" << endl;
-    cout << "2.Find by name" << endl;
-}
-
 
 enum class COMMAND {
     PIPES = 1, CS = 2, NETWORK = 3, SHOW_ALL_OBJECT = 4, SAVE = 5, LOAD = 6, EXIT = 0
@@ -298,14 +240,15 @@ int main()
                 switch (commandNumber) {
                 case static_cast<int>(NETWORK_COMMAND::CONNECT):
                 {
+                    cout << "FREE PIPES" << endl;
                     network.dataPipe.PrintFreePipe();
                     int pipe_id, inCS_id, outCS_id;
                     cout << "Enter pipe id" << endl;
                     CorrectInput(pipe_id);
-                    cout << "Enter input CS id" << endl;
-                    CorrectInput(inCS_id);
                     cout << "Enter output CS id" << endl;
                     CorrectInput(outCS_id);
+                    cout << "Enter input CS id" << endl;
+                    CorrectInput(inCS_id);
                     while (outCS_id == inCS_id) {
                         cout << "Invalid input" << endl;
                         CorrectInput(outCS_id);
@@ -323,11 +266,7 @@ int main()
                 }
                 case static_cast<int>(NETWORK_COMMAND::TOPOLOGY_SORT):
                 {
-                    if(!network.CheckGraph()) {
                     network.topologicalSort();
-                    } else {
-                        cout << "topological sorting is not possible" << endl;
-                    }
                     break;
                 }
                 case static_cast<int>(NETWORK_COMMAND::PRINT_ALL_CONECTIONS):

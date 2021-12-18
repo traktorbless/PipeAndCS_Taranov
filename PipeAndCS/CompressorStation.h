@@ -7,7 +7,7 @@ class CompressionStation {
 public:
 
     CompressionStation(const std::string& new_name,int new_numberWorkshop, int new_numberWorkshopInActive,
-                       double new_effiency);
+                       double new_effiency, bool new_status_connected = 0);
     
     std::string GetName() const;
     
@@ -18,6 +18,10 @@ public:
     int GetPercentOfUnactiveWorkshop() const;
     
     double GetEffiency() const;
+    
+    bool GetStatusConnected() const;
+    
+    void ChangeStatusConnected(bool status);
 
     void ChangeNumberOfWorkstationInActive(int new_number_workshop_active);
     
@@ -26,7 +30,7 @@ private:
     int numberWorkshop;
     int numberWorkshopInAtive;
     double effiency;
-    int inputPipe, outputPipe;
+    bool is_connected;
 };
 
 std::ostream& operator<<(std::ostream& os,const CompressionStation& station);
