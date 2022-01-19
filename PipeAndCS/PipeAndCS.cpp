@@ -1,10 +1,11 @@
 #include "Network.h"
 #include "Console.h"
 
-/*
- 1. Сделать запрет на удаление подключенных станций
- 2. 
- **/
+#define ACTION_FILTER(action,list) {  \
+    for(const auto& id : list){       \
+        action(id);                   \
+    }                                 \
+}
 
 using namespace std;
 
@@ -33,7 +34,8 @@ enum class CS_FILTER {
 };
 
 enum class NETWORK_COMMAND {
-    CONNECT = 1, DISCONNECT = 2, TOPOLOGY_SORT = 3, PRINT_ALL_CONECTIONS = 4, CANCEL = 0
+    CONNECT = 1, DISCONNECT = 2, TOPOLOGY_SORT = 3, PRINT_ALL_CONECTIONS = 4,FIND_SHORTCUT = 5,
+    FIND_MAX_STREAM = 6, CANCEL = 0
 };
 
 set<int> inputNumbers(size_t size) {
@@ -63,29 +65,21 @@ void ActionWithFilter(Database& db, const vector<int>& id_list) {
     CorrectInput(commandNumber);
     switch (commandNumber) {
         case static_cast<int>(ACTION_COMMAND::DELETE_ALL): {
-            for (const auto& id : id_list) {
-                db.Delete(id);
-            }
+            ACTION_FILTER(db.Delete,id_list);
             break;
         }
         case static_cast<int>(ACTION_COMMAND::CHANGE_ALL): {
-            for (const auto& id : id_list) {
-                db.Change(id);
-            }
+            ACTION_FILTER(db.Change, id_list);
             break;
         }
         case static_cast<int>(ACTION_COMMAND::DELETE_SELECTE): {
             set<int> numbers = inputNumbers(id_list.size());
-            for (const auto& i : numbers) {
-                db.Delete(id_list[i - 1]);
-            }
+            ACTION_FILTER(db.Delete,numbers);
             break;
         }
         case static_cast<int>(ACTION_COMMAND::CHANGE_SELECTE): {
             set<int> numbers = inputNumbers(id_list.size());;
-            for (const auto& i : numbers) {
-                db.Change(id_list[i - 1]);
-            }
+            ACTION_FILTER(db.Change,numbers);
             break;
         }
         case static_cast<int>(ACTION_COMMAND::CANCEL): {
@@ -243,6 +237,8 @@ int main()
                     cout << "FREE PIPES" << endl;
                     network.dataPipe.PrintFreePipe();
                     int pipe_id, inCS_id, outCS_id;
+                    cout << "FREE CS" << endl;
+                    network.dataCS.Print(cout);
                     cout << "Enter pipe id" << endl;
                     CorrectInput(pipe_id);
                     cout << "Enter output CS id" << endl;
@@ -266,12 +262,54 @@ int main()
                 }
                 case static_cast<int>(NETWORK_COMMAND::TOPOLOGY_SORT):
                 {
+                    if (!network.CheckCycleInGraph()){
                     network.topologicalSort();
+                    } else {
+                        cout << "Error, there is a cycle in the graph" << endl;
+                    }
                     break;
                 }
                 case static_cast<int>(NETWORK_COMMAND::PRINT_ALL_CONECTIONS):
                 {
                     network.PrintAllConnection(cout);
+                    break;
+                }
+                case static_cast<int>(NETWORK_COMMAND::FIND_SHORTCUT):
+                {
+                    network.dataCS.Print(cout);
+                    int firstCS,lastCS;
+                    cout << "Enter start station" << endl;
+                    CorrectInput(firstCS);
+                    cout << "Enter last station" << endl;
+                    CorrectInput(lastCS);
+                    while (lastCS == firstCS) {
+                        cout << "Invalid input" << endl;
+                        CorrectInput(lastCS);
+                    }
+                    if (!network.dataCS.Contains(lastCS) || !network.dataCS.Contains(firstCS)){
+                        cout << "First station or last station don't exists" << endl;
+                        break;
+                    }
+                    network.FindShortcut(firstCS,lastCS);
+                    break;
+                }
+                case static_cast<int>(NETWORK_COMMAND::FIND_MAX_STREAM):
+                {
+                    network.dataCS.Print(cout);
+                    int firstCS,lastCS;
+                    cout << "Enter start station" << endl;
+                    CorrectInput(firstCS);
+                    cout << "Enter last station" << endl;
+                    CorrectInput(lastCS);
+                    while (lastCS == firstCS) {
+                        cout << "Invalid input" << endl;
+                        CorrectInput(lastCS);
+                    }
+                    if (!network.dataCS.Contains(lastCS) || !network.dataCS.Contains(firstCS)){
+                        cout << "First station or last station don't exists" << endl;
+                        break;
+                    }
+                    cout << network.FindMaxStream(firstCS,lastCS);
                     break;
                 }
                 case static_cast<int>(NETWORK_COMMAND::CANCEL):

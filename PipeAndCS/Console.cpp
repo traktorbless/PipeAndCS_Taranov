@@ -44,6 +44,8 @@ void NetworkMenu() {
     cout << "2.Disconnect" << endl;
     cout << "3.Topology Sort" << endl;
     cout << "4.Print all connections" << endl;
+    cout << "5.Find shortcut" << endl;
+    cout << "6.Find max stream" << endl;
     cout << "0.Cancel" << endl;
 }
 

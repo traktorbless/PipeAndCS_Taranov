@@ -42,7 +42,7 @@ void Network::Disconnect(int pipe_id) {
     }
 }
 
-void Network::topologicalSortUtil(int v,const unordered_map<int, set<int>>& graph ,unordered_map<int,bool>& visited, stack<int> &Stack) {
+void Network::topologicalSortUtil(int v,const unordered_map<int, set<int>>& graph ,unordered_map<int,bool>& visited, stack<int> &Stack) const {
 
     visited[v] = true;
 
@@ -56,7 +56,7 @@ void Network::topologicalSortUtil(int v,const unordered_map<int, set<int>>& grap
     Stack.push(v);
 }
 
-void Network::topologicalSort(){
+void Network::topologicalSort() const {
     stack<int> Stack;
   
     unordered_map<int, bool> visit;
@@ -86,6 +86,38 @@ void Network::topologicalSort(){
     }
 }
 
+bool dfs(int v,const set<int>& g, unordered_map<int, int>& color) {
+    color[v] = 1;
+    for (auto& i : g) {
+        if (color[i] == 0) {
+            if (dfs(i,g,color)){
+                return true;
+            }
+        } else if (color[i] == 1) {
+            return true;
+        }
+    }
+    color[v] = 2;
+    return false;
+}
+
+bool Network::CheckCycleInGraph() const {
+    unordered_map<int, int> color;
+    unordered_map<int , set<int>> graph;
+    for (const auto& [pipe_id,pair_cs] : dataConnection) {
+        color[pair_cs.outCS] = 0;
+        color[pair_cs.inCS] = 0;
+        graph[pair_cs.outCS].insert(pair_cs.inCS);
+        graph[pair_cs.inCS];
+    }
+    for(auto& [key,value] : graph) {
+        if (dfs(key,value, color)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Network::PrintAllConnection(ostream& os) const {
     for (const auto& [pipe_id, pairCS] : dataConnection) {
         os << "Connection" << endl;
@@ -102,6 +134,36 @@ void Network::LoadConnection(istream& is) {
     ParseString(is, outCS_id);
     ParseString(is, inCS_id);
     Connect(pipe_id, outCS_id, inCS_id);
+}
+
+Graph Network::CreateGraph()  {
+    unordered_map<size_t, Node> graph;
+    
+    for (const auto& [pipe_id,pair_cs] : dataConnection) {
+        graph[pair_cs.outCS].id = pair_cs.outCS;
+        graph[pair_cs.inCS].id = pair_cs.inCS;
+        int weight = dataPipe.PipeById(pipe_id).GetLength();
+        graph[pair_cs.outCS].edges.push_back({weight,pair_cs.inCS});
+    }
+    return {graph};
+}
+
+void Network::FindShortcut(int firstCS, int lastCS){
+    Graph graph = CreateGraph();
+    AlgorithmDeikstra(graph, firstCS, lastCS);
+    vector<size_t> result = short_path(graph, firstCS, lastCS);
+    if (result.size() <= 1) {
+        cout << "Path not found" << endl;
+    } else {
+    for (const auto& cs_id : result) {
+        cout << graph.nodes[cs_id].id << " ";
+    }
+    }
+}
+
+int Network::FindMaxStream(int firstCS, int lastCS) {
+    Graph graph = CreateGraph();
+    return MaxStream(graph, firstCS, lastCS);
 }
 
 bool operator==(const PairCS& lhs, const PairCS& rhs) {

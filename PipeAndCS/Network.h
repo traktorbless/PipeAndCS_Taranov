@@ -1,6 +1,7 @@
 #pragma once
 #include "Database.h"
 #include "Function.h"
+#include "Graph.h"
 #include <set>
 
 struct PairCS {
@@ -24,7 +25,13 @@ public:
     
     void LoadConnection(std::istream& os);
     
-    void topologicalSort();
+    bool CheckCycleInGraph() const;
+    
+    void topologicalSort() const;
+    
+    void FindShortcut(int firstCS, int lastCS);
+    
+    int FindMaxStream(int firstCS, int lastCS);
 
 	DataCS dataCS;
 
@@ -34,7 +41,12 @@ private:
     
 	std::unordered_map<int, PairCS> dataConnection;
     
-    void topologicalSortUtil(int v,const unordered_map<int, set<int>>& graph ,unordered_map<int,bool>& visited, stack<int> &Stack);
+    Graph CreateGraph();
+    
+    
+    void topologicalSortUtil(int v,const unordered_map<int, set<int>>& graph ,unordered_map<int,bool>& visited, stack<int> &Stack) const;
+    
+    bool dfc(int v,set<int> g, unordered_map<int, int>& color);
 
 };
 

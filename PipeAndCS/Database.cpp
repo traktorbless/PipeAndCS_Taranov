@@ -66,7 +66,7 @@ void DataPipe::Delete(int id) {
         db.erase(id);
     }
     else {
-        cout << "Pipe with ID " << id << " can't be removed, because it connects the compressor stations" << endl;
+        cout << "Pipe with ID " << id << " can't be removed, because it connected to the compressor stations" << endl;
     }
 }
 

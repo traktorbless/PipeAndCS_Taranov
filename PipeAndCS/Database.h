@@ -1,9 +1,3 @@
-//
-//  Database.h
-//  PipeAndCs
-//
-//  Created by Антон Таранов on 14.12.2021.
-//
 #pragma once
 #include "Pipe.h"
 #include "CompressorStation.h"

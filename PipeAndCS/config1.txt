@@ -1,0 +1,139 @@
+Pipe
+truba7
+Diametr 250
+Length 400
+Status repair 1
+Status connect 1
+ID 7
+
+Pipe
+truba6
+Diametr 600
+Length 200
+Status repair 1
+Status connect 1
+ID 6
+
+Pipe
+truba5
+Diametr 500
+Length 300
+Status repair 1
+Status connect 1
+ID 5
+
+Pipe
+truba4
+Diametr 200
+Length 100
+Status repair 1
+Status connect 1
+ID 4
+
+Pipe
+truba3
+Diametr 200
+Length 600
+Status repair 1
+Status connect 1
+ID 3
+
+Pipe
+truba2
+Diametr 300
+Length 500
+Status repair 1
+Status connect 1
+ID 2
+
+Pipe
+truba1
+Diametr 300
+Length 300
+Status repair 1
+Status connect 1
+ID 1
+
+Compressor station
+Name cs6
+Number of workshops 300
+Number of workshops in active 200
+Effiency 0.4
+Status connected 1
+ID 7
+
+Compressor station
+Name cs5
+Number of workshops 115
+Number of workshops in active 10
+Effiency 0.4
+Status connected 1
+ID 5
+
+Compressor station
+Name cs4
+Number of workshops 210
+Number of workshops in active 100
+Effiency 0.2
+Status connected 1
+ID 4
+
+Compressor station
+Name cs3
+Number of workshops 200
+Number of workshops in active 100
+Effiency 0.1
+Status connected 1
+ID 3
+
+Compressor station
+Name cs2
+Number of workshops 400
+Number of workshops in active 100
+Effiency 0.6
+Status connected 1
+ID 2
+
+Compressor station
+Name cs1
+Number of workshops 200
+Number of workshops in active 100
+Effiency 0.3
+Status connected 1
+ID 1
+
+Connection
+Pipe ID 7
+OutCS 5
+InputCS 7
+
+Connection
+Pipe ID 6
+OutCS 4
+InputCS 7
+
+Connection
+Pipe ID 5
+OutCS 3
+InputCS 5
+
+Connection
+Pipe ID 4
+OutCS 3
+InputCS 4
+
+Connection
+Pipe ID 3
+OutCS 2
+InputCS 4
+
+Connection
+Pipe ID 2
+OutCS 1
+InputCS 3
+
+Connection
+Pipe ID 1
+OutCS 1
+InputCS 2
+
